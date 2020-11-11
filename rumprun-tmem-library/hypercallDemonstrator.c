@@ -7,6 +7,6 @@ int main (){
   test();
 
   printf("Ok, exiting...\n");
-  sleep(5)
+  sleep(5);
   return 0;
 }
