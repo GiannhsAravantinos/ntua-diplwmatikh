@@ -6,7 +6,9 @@
 int main (){
   test();
 
-  printf("Ok, exiting...\n");
+
   sleep(5);
+  int res = rumprun_utmem();
+  printf("%s %d\n","Ok, hypercall done",res );
   return 0;
 }
