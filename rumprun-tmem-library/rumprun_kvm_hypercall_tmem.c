@@ -31,7 +31,7 @@ int rumprun_utmem(){
   int ret = -1;
 
   unsigned long trashAddress = 1<<16;
-  ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_NON_EXISTANT_OP,trashAddress);
+  //ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_NON_EXISTANT_OP,trashAddress);
 
   return ret;
 }
