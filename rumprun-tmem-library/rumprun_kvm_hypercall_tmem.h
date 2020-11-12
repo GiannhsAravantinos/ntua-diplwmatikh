@@ -5,5 +5,6 @@ int rumprun_utmem();
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2);
 
 void test();
+void showAssemblyCode();
 
 #endif

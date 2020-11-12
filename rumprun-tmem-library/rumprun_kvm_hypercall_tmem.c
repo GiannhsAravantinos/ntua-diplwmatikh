@@ -12,9 +12,6 @@
 
 #define DUMMY_MACRO ".byte 0x0f,0x01,0xc1"
 
-void test(){
-  printf("All linked fine\n");
-}
 
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
 {
@@ -34,4 +31,12 @@ int rumprun_utmem(){
   ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_NON_EXISTANT_OP,trashAddress);
 
   return ret;
+}
+
+void test(){
+  printf("All linked fine\n");
+}
+
+void showAssemblyCode(){
+  printf("Macro:\n%s\n",KVM_HYPERCALL);
 }

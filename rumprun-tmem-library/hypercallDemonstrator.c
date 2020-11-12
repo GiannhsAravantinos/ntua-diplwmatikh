@@ -4,11 +4,10 @@
 #include "rumprun_kvm_hypercall_tmem.h"
 
 int main (){
-  test();
 
-
-  sleep(5);
+  sleep(2);
   int res = rumprun_utmem();
   printf("%s %d\n","Ok, hypercall done",res );
+  //showAssemblyCode();
   return 0;
 }
