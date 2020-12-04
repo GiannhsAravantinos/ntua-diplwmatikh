@@ -1,5 +1,6 @@
 rumpCompiler = ~/rumprun/rumprun/rumprun/bin/x86_64-rumprun-netbsd-gcc
 rumpBaker = ~/rumprun/rumprun/rumprun/bin/rumprun-bake
+TARGET = hw_generic
 #set this to rumprun gcc compiler
 
 all:hypercallDemonstrator.bin localDemo #1st to run with Rumprun, 2nd for local test
@@ -7,7 +8,7 @@ all:hypercallDemonstrator.bin localDemo #1st to run with Rumprun, 2nd for local 
 
 
 hypercallDemonstrator.bin:hypercallDemonstrator
-	$(rumpBaker) hw_generic hypercallDemonstrator.bin hypercallDemonstrator
+	$(rumpBaker) $(TARGET) hypercallDemonstrator.bin hypercallDemonstrator
 
 hypercallDemonstrator:rumprun_kvm_hypercall_tmem.o
 	$(rumpCompiler) $^ -o hypercallDemonstrator hypercallDemonstrator.c
