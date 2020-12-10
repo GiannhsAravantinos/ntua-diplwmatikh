@@ -16,5 +16,6 @@ int main (){
   //showAssemblyCode();
   */
   int res = tmem(5);
+  //res = tmem(6);
   return 0;
 }
