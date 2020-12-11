@@ -94,6 +94,13 @@ void create_get_request(void){
   int res = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) request) );
   printf("KERNEL:hypercall get performed %d\n",res);
 
+  printf("Value length %d\n",(int) *value_lenp);
+  if((int) *value_lenp == sizeof(int)){
+    int returnVal;
+    memcpy((void *) &returnVal, value, sizeof(int));
+    printf("Value %d\n",returnVal);
+  }
+
   free((void *) key, M_TEMP);
   free((void *) value, M_TEMP);
   free((void *) value_lenp, M_TEMP);
