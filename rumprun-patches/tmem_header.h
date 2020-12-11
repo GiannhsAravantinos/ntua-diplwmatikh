@@ -9,6 +9,8 @@
 #define PV_TMEM_INVALIDATE_OP	2
 
 /* TMEM structures */
+#define TMEM_MAX (1024 * 1024)
+
 struct tmem_put_request {
     void *key;
     size_t key_len;
