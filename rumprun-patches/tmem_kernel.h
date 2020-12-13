@@ -1,5 +1,5 @@
-#ifndef _TMEM_HEADER_H
-#define _TMEM_HEADER_H
+#ifndef _TMEM_KERNEL_H
+#define _TMEM_KERNEL_H
 
 #include <sys/types.h>
 
@@ -7,6 +7,11 @@
 #define PV_TMEM_GET_OP		0
 #define PV_TMEM_PUT_OP		1
 #define PV_TMEM_INVALIDATE_OP	2
+
+/* TMEM operation numbers */
+#define TMEM_GET 0
+#define TMEM_PUT 1
+#define TMEM_INVAL 2
 
 /* TMEM structures */
 #define TMEM_MAX (1024 * 1024)

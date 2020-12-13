@@ -20,8 +20,8 @@ echo "cp sys_tmem.c ${RUMPRUN_REPO}/src-netbsd/sys/kern/"
 cp sys_tmem.c ${RUMPRUN_REPO}/src-netbsd/sys/kern/
 echo ""
 
-echo "cp tmem_header.h ${RUMPRUN_REPO}/src-netbsd/sys/kern/"
-cp tmem_header.h ${RUMPRUN_REPO}/src-netbsd/sys/kern/
+echo "cp tmem_kernel.h ${RUMPRUN_REPO}/src-netbsd/sys/kern/"
+cp tmem_kernel.h ${RUMPRUN_REPO}/src-netbsd/sys/kern/
 echo ""
 
 echo "cp Makefile.rumpkern ${RUMPRUN_REPO}/src-netbsd/sys/rump/librump/rumpkern/"

@@ -7,13 +7,13 @@
 #include <uvm/uvm_extern.h>
 #include <sys/param.h>
 
-#include "tmem_header.h"
+#include "tmem_kernel.h"
 
 //declaration of functions
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2);
 int create_put_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t value_len_arg);
 int create_get_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t *value_lenp_arg);
-
+int create_invalidate_page_request(void *key_arg, size_t key_len_arg);
 
 
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
@@ -29,6 +29,7 @@ int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
 static struct tmem_request *request;
 static struct tmem_put_request *put_request;
 static struct tmem_get_request *get_request;
+static struct tmem_invalidate_request *invalidate_request;
 
 
 int create_put_request
@@ -87,7 +88,6 @@ mem_free_put:
   free((void*) request, M_TEMP);
 
   printf("KERNEL:free was ok\n");
-
   return ret;
 }
 
@@ -150,7 +150,7 @@ int create_get_request
   memcpy(value_lenp_arg, value_lenp, sizeof(size_t));
   memcpy(value_arg, value, *value_lenp);
   //NOTE! I think there is no need to copy key back
-  
+
 mem_free_get:
   free(key, M_TEMP);
   free(value, M_TEMP);
@@ -164,16 +164,80 @@ mem_free_get:
 }
 
 
-// netbsd syscall part starts now
+int create_invalidate_page_request
+(void *key_arg, size_t key_len_arg){
+  /* Declare local variables/pointers */
+  void *key;
+  size_t key_len;
+  int ret;
 
+  key_len = key_len_arg;
+  /* Allocate kernel memory (redundunt in unikernell, though)*/
+  if((key = malloc(key_len,M_TEMP, M_WAITOK))==NULL){
+    return ENOMEM;
+  }
+  memcpy(key, key_arg, key_len);
+
+  /* Request structrures allocation*/
+  if((invalidate_request=malloc(sizeof(struct tmem_invalidate_request), M_TEMP, M_WAITOK))
+  ==NULL){
+    return ENOMEM;
+  }
+  invalidate_request->key = (void *)vtophys((vaddr_t) key);
+  invalidate_request->key_len = key_len;
+
+  if((request=malloc(sizeof(struct tmem_request), M_TEMP, M_WAITOK))
+    ==NULL){
+      return ENOMEM;
+    }
+  request->inval = *invalidate_request;
+  printf("KERNEL:mallocs done\n");
+
+  /* Perform hypercall */
+  int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_INVALIDATE_OP,vtophys((vaddr_t) request));
+  if(hc_ret==0){
+    printf("KERNEL:hypercall OK!\n");
+    ret = 0;
+  }
+  else{
+    printf("KERNEL:hypercall ERROR! %d\n",hc_ret);
+    ret = -1;
+    goto mem_free_inval;
+  }
+
+mem_free_inval:
+  free(key,M_TEMP);
+
+  free(invalidate_request,M_TEMP);
+  free(request,M_TEMP);
+  return ret;
+}
+
+
+// netbsd syscall part starts now
 int sys_tmem
 (struct lwp *l, const struct sys_tmem_args *uap, register_t *retval)
 {
-	int val = SCARG(uap, num);
+	int cmd_arg = SCARG(uap, cmd);
+  //void *request_arg = SCARG(uap,request);
 
-  printf("KERNEL:Hi from kernelspace %d\n",val);
 
-  int key = 5;
+  switch(cmd_arg){
+    case TMEM_GET:
+      printf("KERNEL:got a GET request\n");
+      break;
+    case TMEM_PUT:
+      printf("KERNEL:got a PUT request\n");
+      break;
+    case TMEM_INVAL:
+      printf("KERNEL:got an INVAL request\n");
+      break;
+    default:
+      printf("ERROR unknow tmem operation\n");
+      break;
+  }
+
+  /*int key = 5;
   int value = 10;
 
   int retVal = create_put_request
@@ -197,6 +261,6 @@ int sys_tmem
   free(value2, M_TEMP);
   free(value_lenp, M_TEMP);
 
-  printf("KERNEL:will return\n");
+  printf("KERNEL:will return\n");*/
   return 0;
 }

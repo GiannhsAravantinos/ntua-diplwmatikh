@@ -6,7 +6,7 @@
 
 
 #include "rumprun_kvm_hypercall_tmem.h"
-
+#include "tmem.h"
 
 int main (){
 
@@ -15,7 +15,10 @@ int main (){
   printf("%s %d\n","Ok, hypercall done",res );
   //showAssemblyCode();
   */
-  int res = tmem(5);
+  long b=15;
+  int res = tmem(TMEM_PUT,(void * ) &b);
+  res = tmem(TMEM_GET,(void * ) &b);
+  res = tmem(TMEM_INVAL,(void * ) &b);
   //res = tmem(6);
   return 0;
 }
