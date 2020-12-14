@@ -215,7 +215,8 @@ mem_free_inval:
 }
 
 
-int get_key(void **key, void *user_key, size_t key_len){
+int get_key
+(void **key, void *user_key, size_t key_len){
   int ret = 0;
   void *local_key;
 
@@ -248,10 +249,10 @@ int sys_tmem
   void *request_arg = SCARG(uap,request);
 
   void *key,*value;/*local values to be exraxted from args*/
-  size_t key_len,value_len;//,*value_lenp;
+  size_t key_len,value_len,*value_lenp;
   struct tmem_request temp_request;
 
-  key=NULL;value=NULL;/*so that free is never on uninitialised pointers*/
+  key=value=value_lenp=NULL;/*so that free is never on uninitialised pointers*/
 
   /*in any case there must be a request argument*/
   copyin(request_arg, &temp_request, sizeof(struct tmem_request));
@@ -292,12 +293,43 @@ int sys_tmem
       goto syscall_out;
       break;
 
+
     case TMEM_GET:/*we deal with a GET request*/
       printf("KERNEL:got a GET request\n");
-
+      /*lets get key first*/
       key_len = temp_request.get.key_len;
-      get_key(&key, temp_request.get.key, key_len);
+      if(get_key(&key, temp_request.get.key, key_len)){
+        printf("KERNEL:ERROR bad key\n");
+        return -1;
+      }
+
+      /*now lets get value*/
+      if((value_lenp = malloc(sizeof(size_t),M_TEMP,M_WAITOK))
+      ==NULL){
+        return ENOMEM;
+      }
+      if((value=malloc(TMEM_MAX, M_TEMP, M_WAITOK))==NULL){
+        return ENOMEM;
+      }
+      /*perform hvm hypercall*/
+      if(create_get_request(key,key_len,value,value_lenp)){
+        printf("KERNEL:ERROR no hypercall\n");
+        return -1;
+      }
+
+      /*copy to userspace*/
+      if(copyout(value_lenp, temp_request.get.value_lenp, sizeof(size_t))){
+        printf("KERNEL:ERROR bad len_p\n");
+        return -1;
+      }
+      if(copyout(value, temp_request.get.value, *value_lenp)){
+        printf("KERNEL:ERROR bad value\n");
+        return -1;
+      }
+
+      goto syscall_out;
       break;
+
 
     case TMEM_INVAL:/*we deal with an INVAL request*/
       printf("KERNEL:got an INVAL request\n");
@@ -314,6 +346,7 @@ int sys_tmem
 syscall_out:
   free(key,M_TEMP);
   free(value,M_TEMP);
+  free(value_lenp,M_TEMP);
 
   return 0;
 }
