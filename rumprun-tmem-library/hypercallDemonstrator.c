@@ -15,10 +15,19 @@ int main (){
   printf("%s %d\n","Ok, hypercall done",res );
   //showAssemblyCode();
   */
-  long b=15;
-  int res = tmem(TMEM_PUT,(void * ) &b);
-  res = tmem(TMEM_GET,(void * ) &b);
-  res = tmem(TMEM_INVAL,(void * ) &b);
+  int key = 30;
+  int value;
+  struct tmem_request req;
+  struct tmem_put_request put_req;
+
+  put_req.key=(void * ) &key;
+  put_req.key_len = sizeof(int);
+  put_req.value = (void *) &value;
+  put_req.value_len = sizeof(int);
+  
+  req.put = put_req;
+
+  int res = tmem(TMEM_PUT,(void * ) &req);
   //res = tmem(6);
   return 0;
 }

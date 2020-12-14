@@ -14,7 +14,7 @@ int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2);
 int create_put_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t value_len_arg);
 int create_get_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t *value_lenp_arg);
 int create_invalidate_page_request(void *key_arg, size_t key_len_arg);
-
+int get_key(void **key, void *user_key, size_t key_len);
 
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
 {
@@ -26,6 +26,7 @@ int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
   return ret;
 }
 
+/*Actual structs to be used in hypercall*/
 static struct tmem_request *request;
 static struct tmem_put_request *put_request;
 static struct tmem_get_request *get_request;
@@ -214,53 +215,105 @@ mem_free_inval:
 }
 
 
-// netbsd syscall part starts now
+int get_key(void **key, void *user_key, size_t key_len){
+  int ret = 0;
+  void *local_key;
+
+  /*For some reason it has to be at least LONG sized*/
+  /*see original tmem implementation for more info https://github.com/etsal/tmem */
+  if((local_key = malloc(max(key_len,sizeof(long)),M_TEMP,M_WAITOK))
+  ==NULL){
+    return ENOMEM;
+  }
+
+  /*copy key into kernelspace */
+  ret = copyin(user_key, local_key, key_len);
+  if(ret){return ret;}
+
+  /* The key needs to be the same every time, so zero out any garbage after it */
+  if(sizeof(long)>key_len){
+    memset(((uint8_t*) local_key) + key_len, 0, sizeof(long)-key_len);
+  }
+  *key = local_key;
+  return ret;
+}
+
+
+
+/*actual System Call function implementation*/
 int sys_tmem
 (struct lwp *l, const struct sys_tmem_args *uap, register_t *retval)
 {
-	int cmd_arg = SCARG(uap, cmd);
-  //void *request_arg = SCARG(uap,request);
+	int cmd_arg = SCARG(uap, cmd);/*syscall arguments*/
+  void *request_arg = SCARG(uap,request);
 
+  void *key,*value;/*local values to be exraxted from args*/
+  size_t key_len,value_len;//,*value_lenp;
+  struct tmem_request temp_request;
+
+  key=NULL;value=NULL;/*so that free is never on uninitialised pointers*/
+
+  /*in any case there must be a request argument*/
+  copyin(request_arg, &temp_request, sizeof(struct tmem_request));
+
+  int key_as_val;/*to be removed*/
 
   switch(cmd_arg){
-    case TMEM_GET:
-      printf("KERNEL:got a GET request\n");
-      break;
-    case TMEM_PUT:
+
+    case TMEM_PUT:/*we deal with a PUT request*/
       printf("KERNEL:got a PUT request\n");
+      /*lets get key first*/
+      key_len = temp_request.put.key_len;
+      if(get_key(&key, temp_request.put.key, key_len)){
+        printf("KERNEL:ERROR bad key\n");
+        return -1;
+      }
+
+      memcpy(&key_as_val, key, sizeof(int));
+      printf("KERNEL:key%d\n", key_as_val);
+      /*now lets get value*/
+      value_len = temp_request.put.value_len;
+      if(value_len>TMEM_MAX){
+        printf("KERNEL:ERROR value length is too long\n");
+        return -1;
+      }
+      if((value=malloc(value_len, M_TEMP, M_WAITOK))==NULL){
+        return ENOMEM;
+      }
+      if(copyin(value, temp_request.put.value, value_len)){
+        printf("KERNEL:ERROR bad value\n");
+        return -1;
+      }
+      /*perform hvm hypercall*/
+      if(create_put_request(key,key_len,value,value_len)){
+        printf("KERNEL:ERROR no hypercall\n");
+        return -1;
+      }
+      goto syscall_out;
       break;
-    case TMEM_INVAL:
+
+    case TMEM_GET:/*we deal with a GET request*/
+      printf("KERNEL:got a GET request\n");
+
+      key_len = temp_request.get.key_len;
+      get_key(&key, temp_request.get.key, key_len);
+      break;
+
+    case TMEM_INVAL:/*we deal with an INVAL request*/
       printf("KERNEL:got an INVAL request\n");
+
+      key_len = temp_request.inval.key_len;
+      get_key(&key, temp_request.inval.key, key_len);
       break;
+
     default:
       printf("ERROR unknow tmem operation\n");
       break;
   }
 
-  /*int key = 5;
-  int value = 10;
+syscall_out:
+  free(key,M_TEMP);
+  free(value,M_TEMP);
 
-  int retVal = create_put_request
-  ((void *) &key,sizeof(int),(void *) &value,sizeof(int));
-  printf("PUT %d\n",retVal);
-
-
-  void *value2 = malloc(TMEM_MAX, M_TEMP, M_WAITOK);
-  size_t *value_lenp = malloc(sizeof(size_t), M_TEMP, M_WAITOK);
-
-  retVal = create_get_request
-  ((void *) &key,sizeof(int),value2 ,value_lenp);
-  printf("GET %d\n",retVal);
-
-  printf("Value length %d\n",(int) *value_lenp);
-  if((int) *value_lenp == sizeof(int)){
-    int returnVal;
-    memcpy((void *) &returnVal, value2, sizeof(int));
-    printf("Value %d\n",returnVal);
-  }
-  free(value2, M_TEMP);
-  free(value_lenp, M_TEMP);
-
-  printf("KERNEL:will return\n");*/
   return 0;
 }
