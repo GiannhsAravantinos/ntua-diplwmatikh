@@ -331,7 +331,7 @@ int sys_tmem
       }
 
       int retVal; memcpy((void *) &retVal,value,sizeof(int));
-      printf("KERNEL: value %d\n",retVal)
+      printf("KERNEL: value %d\n",retVal);
 
       free(key,M_TEMP);
       free(value,M_TEMP);
