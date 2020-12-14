@@ -281,7 +281,7 @@ int sys_tmem
       if((value=malloc(value_len, M_TEMP, M_WAITOK))==NULL){
         return ENOMEM;
       }
-      if(copyin(value, temp_request.put.value, value_len)){
+      if(copyin(temp_request.put.value, value, value_len)){
         printf("KERNEL:ERROR bad value\n");
         return -1;
       }

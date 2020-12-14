@@ -18,7 +18,7 @@ int main (){
   //showAssemblyCode();
   */
   int key = 30;
-  int value;
+  int value = 666;
 
   void *retValue;
   retValue = malloc(TMEM_MAX);
