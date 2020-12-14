@@ -36,7 +36,7 @@ int main (){
   req1.put = put_req;
 
   int res = tmem(TMEM_PUT,(void * ) &req1);
-
+  printf("USER: return from syscall\n");
   get_req.key=(void * ) &key;
   get_req.key_len = sizeof(int);
   get_req.value = retValue;
