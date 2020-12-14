@@ -330,6 +330,9 @@ int sys_tmem
         return -1;
       }
 
+      int retVal; memcpy((void *) &retVal,value,sizeof(int));
+      printf("KERNEL: value %d\n",retVal)
+
       free(key,M_TEMP);
       free(value,M_TEMP);
       free(value_lenp,M_TEMP);
