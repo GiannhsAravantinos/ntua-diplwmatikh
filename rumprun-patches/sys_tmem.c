@@ -290,6 +290,9 @@ int sys_tmem
         printf("KERNEL:ERROR no hypercall\n");
         return -1;
       }
+
+      free(key,M_TEMP);
+      free(value,M_TEMP);
       goto syscall_out;
       break;
 
@@ -327,6 +330,9 @@ int sys_tmem
         return -1;
       }
 
+      free(key,M_TEMP);
+      free(value,M_TEMP);
+      free(value_lenp,M_TEMP);
       goto syscall_out;
       break;
 
@@ -344,9 +350,7 @@ int sys_tmem
   }
 
 syscall_out:
-  free(key,M_TEMP);
-  free(value,M_TEMP);
-  free(value_lenp,M_TEMP);
+  printf("KERNEL: syscall out\n");
 
   return 0;
 }
