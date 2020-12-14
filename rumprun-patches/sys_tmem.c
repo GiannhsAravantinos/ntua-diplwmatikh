@@ -11,9 +11,9 @@
 
 //declaration of functions
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2);
-int create_put_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t value_len_arg);
-int create_get_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t *value_lenp_arg);
-int create_invalidate_page_request(void *key_arg, size_t key_len_arg);
+int perform_put_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t value_len_arg);
+int perform_get_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t *value_lenp_arg);
+int perform_invalidate_page_request(void *key_arg, size_t key_len_arg);
 int get_key(void **key, void *user_key, size_t key_len);
 
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
@@ -33,7 +33,7 @@ static struct tmem_get_request *get_request;
 static struct tmem_invalidate_request *invalidate_request;
 
 
-int create_put_request
+int perform_put_request
 (void *key_arg,size_t key_len_arg,void *value_arg,size_t value_len_arg){
   /* Declare local variables/pointers */
   void *key, *value;
@@ -67,7 +67,6 @@ int create_put_request
     return ENOMEM;
   }
   request->put = *put_request;
-  printf("KERNEL:mallocs done\n");
 
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_PUT_OP,vtophys((vaddr_t) request));
@@ -87,13 +86,11 @@ mem_free_put:
 
   free((void*) put_request, M_TEMP);
   free((void*) request, M_TEMP);
-
-  printf("KERNEL:free was ok\n");
   return ret;
 }
 
 
-int create_get_request
+int perform_get_request
 (void *key_arg,size_t key_len_arg,void *value_arg,size_t *value_lenp_arg){
   /* Declare local variables/pointers */
   void *key, *value;
@@ -133,8 +130,6 @@ int create_get_request
   }
   request->get = *get_request;
 
-  printf("KERNEL:mallocs done\n");
-
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) request) );
   if(hc_ret==0){
@@ -159,13 +154,11 @@ mem_free_get:
 
   free((void *) get_request, M_TEMP);
   free((void *) request, M_TEMP);
-
-  printf("KERNEL:free was ok\n");
   return ret;
 }
 
 
-int create_invalidate_page_request
+int perform_invalidate_page_request
 (void *key_arg, size_t key_len_arg){
   /* Declare local variables/pointers */
   void *key;
@@ -192,7 +185,6 @@ int create_invalidate_page_request
       return ENOMEM;
     }
   request->inval = *invalidate_request;
-  printf("KERNEL:mallocs done\n");
 
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_INVALIDATE_OP,vtophys((vaddr_t) request));
@@ -245,50 +237,55 @@ int get_key
 int sys_tmem
 (struct lwp *l, const struct sys_tmem_args *uap, register_t *retval)
 {
-	int cmd_arg = SCARG(uap, cmd);/*syscall arguments*/
+  /*syscall arguments*/
+	int cmd_arg = SCARG(uap, cmd);
   void *request_arg = SCARG(uap,request);
 
-  void *key,*value;/*local values to be exraxted from args*/
+  /*local values to be exraxted from args*/
+  void *key,*value;
   size_t key_len,value_len,*value_lenp;
   struct tmem_request temp_request;
 
-  key=value=value_lenp=NULL;/*so that free is never on uninitialised pointers*/
+  int ret=0;
 
+  key=value=value_lenp=NULL;/*so that free is never on uninitialised pointers*/
   /*in any case there must be a request argument*/
   copyin(request_arg, &temp_request, sizeof(struct tmem_request));
 
-  int key_as_val;/*to be removed*/
+  int key_as_val;/*TODO to be removed*/
 
   switch(cmd_arg){
 
     case TMEM_PUT:/*we deal with a PUT request*/
       printf("KERNEL:got a PUT request\n");
+
       /*lets get key first*/
       key_len = temp_request.put.key_len;
       if(get_key(&key, temp_request.put.key, key_len)){
         printf("KERNEL:ERROR bad key\n");
-        return -1;
+        ret = -1; goto syscall_out;
       }
-
       memcpy(&key_as_val, key, sizeof(int));
       printf("KERNEL:key%d\n", key_as_val);
+
       /*now lets get value*/
       value_len = temp_request.put.value_len;
       if(value_len>TMEM_MAX){
         printf("KERNEL:ERROR value length is too long\n");
-        return -1;
+        ret = -1; goto syscall_out;
       }
       if((value=malloc(value_len, M_TEMP, M_WAITOK))==NULL){
-        return ENOMEM;
+        ret = ENOMEM;goto syscall_out;
       }
       if(copyin(temp_request.put.value, value, value_len)){
         printf("KERNEL:ERROR bad value\n");
-        return -1;
+        ret = -1; goto syscall_out;
       }
+
       /*perform hvm hypercall*/
-      if(create_put_request(key,key_len,value,value_len)){
+      if(perform_put_request(key,key_len,value,value_len)){
         printf("KERNEL:ERROR no hypercall\n");
-        return -1;
+        ret = -1; goto syscall_out;
       }
 
       free(key,M_TEMP);
@@ -300,37 +297,39 @@ int sys_tmem
     case TMEM_GET:/*we deal with a GET request*/
       printf("KERNEL:got a GET request\n");
       /*lets get key first*/
+
       key_len = temp_request.get.key_len;
       if(get_key(&key, temp_request.get.key, key_len)){
         printf("KERNEL:ERROR bad key\n");
-        return -1;
+        ret = -1; goto syscall_out;
       }
 
-      /*now lets get value*/
+      /*now lets prepare value*/
       if((value_lenp = malloc(sizeof(size_t),M_TEMP,M_WAITOK))
       ==NULL){
-        return ENOMEM;
+        ret = ENOMEM; goto syscall_out;
       }
       if((value=malloc(TMEM_MAX, M_TEMP, M_WAITOK))==NULL){
-        return ENOMEM;
-      }
-      /*perform hvm hypercall*/
-      if(create_get_request(key,key_len,value,value_lenp)){
-        printf("KERNEL:ERROR no hypercall\n");
-        return -1;
+        ret = ENOMEM; goto syscall_out;
       }
 
-      /*copy to userspace*/
+      /*perform hvm hypercall*/
+      if(perform_get_request(key,key_len,value,value_lenp)){
+        printf("KERNEL:ERROR no hypercall\n");
+        ret = -1; goto syscall_out;
+      }
+
+      /*copy value/value_lenp to userspace*/
       if(copyout(value_lenp, temp_request.get.value_lenp, sizeof(size_t))){
         printf("KERNEL:ERROR bad len_p\n");
-        return -1;
+        ret = -1; goto syscall_out;
       }
       if(copyout(value, temp_request.get.value, *value_lenp)){
         printf("KERNEL:ERROR bad value\n");
-        return -1;
+        ret = -1; goto syscall_out;
       }
 
-      int retVal; memcpy((void *) &retVal,value,sizeof(int));
+      int retVal; memcpy((void *) &retVal,value,sizeof(int));//TODO to be removed
       printf("KERNEL: value %d\n",retVal);
 
       free(key,M_TEMP);
@@ -343,17 +342,33 @@ int sys_tmem
     case TMEM_INVAL:/*we deal with an INVAL request*/
       printf("KERNEL:got an INVAL request\n");
 
+      /*lets get key*/
       key_len = temp_request.inval.key_len;
-      get_key(&key, temp_request.inval.key, key_len);
+      if(get_key(&key, temp_request.inval.key, key_len)){
+        printf("KERNEL:ERROR bad key\n");
+        ret = -1; goto syscall_out;
+      }
+
+      memcpy(&key_as_val, key, sizeof(int));
+      printf("KERNEL:key%d\n", key_as_val);
+
+      /*perform hvm hypercall*/
+      if(perform_invalidate_page_request(key,key_len)){
+        printf("KERNEL:ERROR no hypercall\n");
+        ret = -1; goto syscall_out;
+      }
+
+      free(key,M_TEMP);
+      goto syscall_out;
       break;
 
     default:
-      printf("ERROR unknow tmem operation\n");
+      printf("KERNEL:ERROR unknow tmem operation\n");
       break;
   }
 
 syscall_out:
-  printf("KERNEL: syscall out\n");
+  printf("KERNEL: syscall exits\n");
 
-  return 0;
+  return ret;
 }
