@@ -71,7 +71,6 @@ int perform_put_request
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_PUT_OP,vtophys((vaddr_t) request));
   if(hc_ret==0){
-    printf("KERNEL:hypercall OK!\n");
     ret = 0;
   }
   else{
@@ -133,7 +132,6 @@ int perform_get_request
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) request) );
   if(hc_ret==0){
-    printf("KERNEL:hypercall OK!\n");
     ret = 0;
   }
   else{
@@ -189,7 +187,6 @@ int perform_invalidate_page_request
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_INVALIDATE_OP,vtophys((vaddr_t) request));
   if(hc_ret==0){
-    printf("KERNEL:hypercall OK!\n");
     ret = 0;
   }
   else{
@@ -252,7 +249,6 @@ int sys_tmem
   /*in any case there must be a request argument*/
   copyin(request_arg, &temp_request, sizeof(struct tmem_request));
 
-  int key_as_val;/*TODO to be removed*/
 
   switch(cmd_arg){
 
@@ -265,8 +261,6 @@ int sys_tmem
         printf("KERNEL:ERROR bad key\n");
         ret = -1; goto syscall_out;
       }
-      memcpy(&key_as_val, key, sizeof(int));
-      printf("KERNEL:key%d\n", key_as_val);
 
       /*now lets get value*/
       value_len = temp_request.put.value_len;
@@ -329,9 +323,6 @@ int sys_tmem
         ret = -1; goto syscall_out;
       }
 
-      int retVal; memcpy((void *) &retVal,value,sizeof(int));//TODO to be removed
-      printf("KERNEL: value %d\n",retVal);
-
       free(key,M_TEMP);
       free(value,M_TEMP);
       free(value_lenp,M_TEMP);
@@ -349,9 +340,6 @@ int sys_tmem
         ret = -1; goto syscall_out;
       }
 
-      memcpy(&key_as_val, key, sizeof(int));
-      printf("KERNEL:key%d\n", key_as_val);
-
       /*perform hvm hypercall*/
       if(perform_invalidate_page_request(key,key_len)){
         printf("KERNEL:ERROR no hypercall\n");
@@ -368,7 +356,7 @@ int sys_tmem
   }
 
 syscall_out:
-  printf("KERNEL: syscall exits\n");
+  printf("KERNEL: syscall exits now\n");
 
   return ret;
 }

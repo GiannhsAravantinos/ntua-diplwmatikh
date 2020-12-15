@@ -6,9 +6,8 @@
 #include <sys/stat.h>
 #include <string.h>
 
-
 #include "rumprun_kvm_hypercall_tmem.h"
-#include "tmem.h"
+
 
 int main (){
 
@@ -18,40 +17,34 @@ int main (){
   //showAssemblyCode();
   */
   int key = 30;
-  int value = 666;
+  int value = 130;
 
   void *retValue;
-  retValue = malloc(TMEM_MAX);
-  size_t value_lenp;
+  size_t *value_lenp;
+  int valueAsNum;
+  retValue = malloc(1024*1024);
+  value_lenp = malloc(sizeof(size_t));
 
-  struct tmem_request req1,req2;
-  struct tmem_put_request put_req;
-  struct tmem_get_request get_req;
-
-  put_req.key=(void * ) &key;
-  put_req.key_len = sizeof(int);
-  put_req.value = (void *) &value;
-  put_req.value_len = sizeof(int);
-
-  req1.put = put_req;
-
-  int res = tmem(TMEM_PUT,(void * ) &req1);
-  printf("USER: return from syscall\n");
-  get_req.key=(void * ) &key;
-  get_req.key_len = sizeof(int);
-  get_req.value = retValue;
-  get_req.value_lenp = &value_lenp;
-
-  req2.get = get_req;
-  res = tmem(TMEM_GET, (void *) &req2);
-
-  if(value_lenp==sizeof(int)){
-    printf("Value len_p %ld\n",value_lenp);
-    memcpy(&value, retValue, sizeof(int));
-    printf("Value %d\n", value);
+  int i;
+  for(i=0;i<10;i++){
+    tmem_put((void *) &key, sizeof(int), (void *) &value, sizeof(int));
+    key++;
+    value++;
   }
 
-  //res = tmem(6);
+  key=30;
+  for(i=0;i<10;i++){
+    tmem_get((void *) &key, sizeof(int), retValue, value_lenp);
+    if(*value_lenp != sizeof(int)){
+      printf("USER:ERROR, value len\n");
+      break;
+    }
+    memcpy(&valueAsNum, retValue, *value_lenp);
+    printf ("USER: key %d value %d\n",key,valueAsNum);
+    key++;
+  }
+
   free(retValue);
+  free(value_lenp);
   return 0;
 }

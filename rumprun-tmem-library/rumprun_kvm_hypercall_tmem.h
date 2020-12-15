@@ -1,10 +1,11 @@
 #ifndef _RUMPRUN_KVM_HYPERCALL_TMEM_H
 #define _RUMPRUN_KVM_HYPERCALL_TMEM_H
 
-int rumprun_utmem();
-int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2);
 
-void test();
-void showAssemblyCode();
+
+int tmem_put(void *key, size_t key_len, void *value, size_t value_len);
+int tmem_get(void *key, size_t key_len, void *value, size_t *value_lenp);
+int tmem_inval(void *key, size_t key_len);
+
 
 #endif
