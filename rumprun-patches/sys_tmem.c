@@ -366,5 +366,6 @@ syscall_out:
   //printf("KERNEL: syscall exits now\n");
   printf("KERNEL: ret vale brefore syscall return %d\n",ret);/*TODO to be removed*/
 
-  return ret;
+  *retval = ret;
+  return 0;
 }
