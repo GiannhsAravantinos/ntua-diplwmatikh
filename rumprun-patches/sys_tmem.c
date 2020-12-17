@@ -135,7 +135,7 @@ int perform_get_request
     ret = hc_ret;
   }
   else{
-    printf("KERNEL:hypercall ERROR! %d\n",hc_ret);
+    printf("KERNEL:hypercall 138 ERROR! %d\n",hc_ret);
     ret = -1;
     goto mem_free_get;
   }
@@ -244,7 +244,7 @@ int sys_tmem
   struct tmem_request temp_request;
 
   int ret=0;
-
+  printf("KERNEL EINVAL %d",EINVAL);goto syscall_out;
   key=value=value_lenp=NULL;/*so that free is never on uninitialised pointers*/
   /*in any case there must be a request argument*/
   copyin(request_arg, &temp_request, sizeof(struct tmem_request));

@@ -10,7 +10,7 @@
 
 #include "rumprun_kvm_hypercall_tmem.h"
 
-#define NUM_OF_TEST 300
+#define NUM_OF_TEST 10
 int main (){
 
   sleep(2);
