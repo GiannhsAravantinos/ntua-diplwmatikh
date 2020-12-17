@@ -69,7 +69,7 @@ int main (){
   value_lenp = malloc(sizeof(size_t));
 
   int temp_ret = tmem_get((void *) &key, sizeof(int), retValue, value_lenp);
-  printf ("ret in userspace %d",temp_ret);
+  printf ("ret in userspace %d\n",temp_ret);
 
   return 0;
 }

@@ -45,7 +45,7 @@ int tmem_get
   };
 
   ret = tmem(TMEM_GET,(void *) &tmem_request);
-
+  printf("Value after tmem hypercall %d\n",ret);
   return ret;
 }
 
