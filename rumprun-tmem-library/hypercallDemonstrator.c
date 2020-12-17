@@ -55,6 +55,7 @@ int main (){
     if(temp_ret ==  -EINVAL){
       printf("USER: key %d was invalidated correctly\n",key);
     }
+    printf("temp_ret value %d\n",temp_ret);
     key++;
   }
 
