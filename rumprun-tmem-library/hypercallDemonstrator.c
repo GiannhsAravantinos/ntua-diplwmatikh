@@ -5,10 +5,12 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <errno.h>
+
 
 #include "rumprun_kvm_hypercall_tmem.h"
 
-
+#define NUM_OF_TEST 300
 int main (){
 
   sleep(2);
@@ -19,6 +21,7 @@ int main (){
   int key = 30;
   int value = 130;
 
+  int temp_ret;
   void *retValue;
   size_t *value_lenp;
   int valueAsNum;
@@ -26,14 +29,14 @@ int main (){
   value_lenp = malloc(sizeof(size_t));
 
   int i;
-  for(i=0;i<10;i++){
+  for(i=0;i<NUM_OF_TEST;i++){
     tmem_put((void *) &key, sizeof(int), (void *) &value, sizeof(int));
     key++;
     value++;
   }
 
   key=30;
-  for(i=0;i<10;i++){
+  for(i=0;i<NUM_OF_TEST;i++){
     tmem_get((void *) &key, sizeof(int), retValue, value_lenp);
     if(*value_lenp != sizeof(int)){
       printf("USER:ERROR, value len\n");
@@ -43,6 +46,18 @@ int main (){
     printf ("USER: key %d value %d\n",key,valueAsNum);
     key++;
   }
+
+  key = 30;
+  for(i=0;i<NUM_OF_TEST;i++){
+    tmem_inval((void *) &key, sizeof(int));
+    temp_ret = tmem_get((void *) &key, sizeof(int), retValue, value_lenp);
+
+    if(temp_ret ==  -EINVAL){
+      printf("USER: key %d was invalidated correctly\n",key);
+    }
+    key++;
+  }
+
 
   free(retValue);
   free(value_lenp);

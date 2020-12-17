@@ -70,8 +70,8 @@ int perform_put_request
 
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_PUT_OP,vtophys((vaddr_t) request));
-  if(hc_ret==0){
-    ret = 0;
+  if(hc_ret==0 || hc_ret == -EINVAL){// -EINVAL means key was not found
+    ret = hc_ret;
   }
   else{
     printf("KERNEL:hypercall ERROR! %d\n",hc_ret);
@@ -253,7 +253,7 @@ int sys_tmem
   switch(cmd_arg){
 
     case TMEM_PUT:/*we deal with a PUT request*/
-      printf("KERNEL:got a PUT request\n");
+      //printf("KERNEL:got a PUT request\n");
 
       /*lets get key first*/
       key_len = temp_request.put.key_len;
@@ -277,7 +277,8 @@ int sys_tmem
       }
 
       /*perform hvm hypercall*/
-      if(perform_put_request(key,key_len,value,value_len)){
+      ret = perform_put_request(key,key_len,value,value_len);
+      if(ret !=0 && ret!= -EINVAL){
         printf("KERNEL:ERROR no hypercall\n");
         ret = -1; goto syscall_out;
       }
@@ -289,7 +290,7 @@ int sys_tmem
 
 
     case TMEM_GET:/*we deal with a GET request*/
-      printf("KERNEL:got a GET request\n");
+      //printf("KERNEL:got a GET request\n");
       /*lets get key first*/
 
       key_len = temp_request.get.key_len;
@@ -308,6 +309,7 @@ int sys_tmem
       }
 
       /*perform hvm hypercall*/
+
       if(perform_get_request(key,key_len,value,value_lenp)){
         printf("KERNEL:ERROR no hypercall\n");
         ret = -1; goto syscall_out;
@@ -331,7 +333,7 @@ int sys_tmem
 
 
     case TMEM_INVAL:/*we deal with an INVAL request*/
-      printf("KERNEL:got an INVAL request\n");
+      //printf("KERNEL:got an INVAL request\n");
 
       /*lets get key*/
       key_len = temp_request.inval.key_len;
@@ -356,7 +358,7 @@ int sys_tmem
   }
 
 syscall_out:
-  printf("KERNEL: syscall exits now\n");
+  //printf("KERNEL: syscall exits now\n");
 
   return ret;
 }

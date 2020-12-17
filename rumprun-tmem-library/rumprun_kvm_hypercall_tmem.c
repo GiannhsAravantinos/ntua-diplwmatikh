@@ -48,3 +48,20 @@ int tmem_get
 
   return ret;
 }
+
+int tmem_inval
+(void *key, size_t key_len){
+  int ret=0;
+
+  struct tmem_invalidate_request inval_request = {
+    .key = key,
+    .key_len = key_len,
+  };
+  struct tmem_request tmem_request = {
+    .inval = inval_request
+  };
+
+  ret = tmem(TMEM_INVAL,(void *) &tmem_request);
+
+  return ret;
+}
