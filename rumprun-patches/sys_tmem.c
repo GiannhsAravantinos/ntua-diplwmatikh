@@ -130,9 +130,9 @@ int perform_get_request
   request->get = *get_request;
 
   /* Perform hypercall */
-  int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) request) );
-  if(hc_ret==0){
-    ret = 0;
+  int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) request));
+  if(hc_ret==0 || hc_ret == -EINVAL){//
+    ret = hc_ret;
   }
   else{
     printf("KERNEL:hypercall ERROR! %d\n",hc_ret);
@@ -309,20 +309,22 @@ int sys_tmem
       }
 
       /*perform hvm hypercall*/
-
-      if(perform_get_request(key,key_len,value,value_lenp)){
+      ret =perform_get_request(key,key_len,value,value_lenp);
+      if(ret !=0 && ret!= -EINVAL){
         printf("KERNEL:ERROR no hypercall\n");
         ret = -1; goto syscall_out;
       }
 
       /*copy value/value_lenp to userspace*/
-      if(copyout(value_lenp, temp_request.get.value_lenp, sizeof(size_t))){
-        printf("KERNEL:ERROR bad len_p\n");
-        ret = -1; goto syscall_out;
-      }
-      if(copyout(value, temp_request.get.value, *value_lenp)){
-        printf("KERNEL:ERROR bad value\n");
-        ret = -1; goto syscall_out;
+      if(ret == 0){// only if key was found
+        if(copyout(value_lenp, temp_request.get.value_lenp, sizeof(size_t))){
+          printf("KERNEL:ERROR bad len_p\n");
+          ret = -1; goto syscall_out;
+        }
+        if(copyout(value, temp_request.get.value, *value_lenp)){
+          printf("KERNEL:ERROR bad value\n");
+          ret = -1; goto syscall_out;
+        }
       }
 
       free(key,M_TEMP);
