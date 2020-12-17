@@ -18,7 +18,7 @@ int main (){
   printf("%s %d\n","Ok, hypercall done",res );
   //showAssemblyCode();
   */
-  int key = 30;
+  /*int key = 30;
   int value = 130;
 
   int temp_ret;
@@ -61,6 +61,15 @@ int main (){
 
 
   free(retValue);
-  free(value_lenp);
+  free(value_lenp);*/
+  int key =3;
+  void *retValue;
+  size_t *value_lenp;
+  retValue = malloc(1024*1024);
+  value_lenp = malloc(sizeof(size_t));
+
+  int temp_ret = tmem_get((void *) &key, sizeof(int), retValue, value_lenp);
+  printf ("ret in userspace %d",temp_ret);
+
   return 0;
 }
