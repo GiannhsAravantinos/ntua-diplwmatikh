@@ -131,12 +131,11 @@ int perform_get_request
 
   /* Perform hypercall */
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) request));
-  printf("KERNEL: ret vale after kvm_hyper %d\n",hc_ret);/*TODO to be removed*/
   if(hc_ret==0 || hc_ret == -EINVAL){//
     ret = hc_ret;
   }
   else{
-    printf("KERNEL:hypercall 138 ERROR! %d\n",hc_ret);
+    printf("KERNEL:hypercall ERROR! %d\n",hc_ret);
     ret = -1;
     goto mem_free_get;
   }
@@ -153,7 +152,6 @@ mem_free_get:
 
   free((void *) get_request, M_TEMP);
   free((void *) request, M_TEMP);
-  printf("KERNEL: ret vale before perform ret %d\n",ret);/*TODO to be removed*/
   return ret;
 }
 
@@ -312,7 +310,6 @@ int sys_tmem
 
       /*perform hvm hypercall*/
       ret =perform_get_request(key,key_len,value,value_lenp);
-      printf("KERNEL: ret vale after perform %d\n",ret);/*TODO to be removed*/
       if(ret !=0 && ret!= -EINVAL){
         printf("KERNEL:ERROR no hypercall\n");
         ret = -1; goto syscall_out;
@@ -364,7 +361,6 @@ int sys_tmem
 
 syscall_out:
   //printf("KERNEL: syscall exits now\n");
-  printf("KERNEL: ret vale brefore syscall return %d\n",ret);/*TODO to be removed*/
 
   *retval = ret;
   return 0;

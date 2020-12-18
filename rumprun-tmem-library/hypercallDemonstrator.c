@@ -10,7 +10,7 @@
 
 #include "rumprun_kvm_hypercall_tmem.h"
 
-#define NUM_OF_TEST 10
+#define NUM_OF_TEST 100
 int main (){
 
   sleep(2);
@@ -18,7 +18,7 @@ int main (){
   printf("%s %d\n","Ok, hypercall done",res );
   //showAssemblyCode();
   */
-  /*int key = 30;
+  int key = 30;
   int value = 130;
 
   int temp_ret;
@@ -54,22 +54,14 @@ int main (){
 
     if(temp_ret ==  -EINVAL){
       printf("USER: key %d was invalidated correctly\n",key);
-    }
-    printf("temp_ret value %d\n",temp_ret);
+    }    
     key++;
   }
 
 
   free(retValue);
-  free(value_lenp);*/
-  int key =3;
-  void *retValue;
-  size_t *value_lenp;
-  retValue = malloc(1024*1024);
-  value_lenp = malloc(sizeof(size_t));
+  free(value_lenp);
 
-  int temp_ret = tmem_get((void *) &key, sizeof(int), retValue, value_lenp);
-  printf ("ret in userspace %d\n",temp_ret);
 
   return 0;
 }
