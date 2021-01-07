@@ -24,7 +24,7 @@ paddr_t vtophys(vaddr_t va){
 	return (paddr_t)va;
 }
 
-
+/*Tmem functions, each for every hypercall operation available*/
 int tmem_put_f
 (void *key_arg, size_t key_len_arg, void *value_arg, size_t value_len_arg){
   /* Local Variable Declarations */
@@ -75,6 +75,7 @@ put_free:
   free(key);
   return ret;
 }
+
 
 int tmem_get_f
 (void *key_arg, size_t key_len_arg, void *value_arg, size_t *value_lenp_arg){
@@ -127,6 +128,7 @@ get_free:
   free((void *) value_lenp);
   return ret;
 }
+
 
 int tmem_invalidate_page_f
 (void *key_arg, size_t key_len_arg){
