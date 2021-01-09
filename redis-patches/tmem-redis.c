@@ -101,7 +101,7 @@ void tmemInvalCommand(redisClient *c){
 
   ret = tmem_invalidate_page_f(key_arg, key_len_arg);
 
-  sprintf(reply, "Inval:Key %s %ld ,ret %d"", key, key_len,ret);
+  sprintf(reply, "Inval:Key %s %ld ,ret %d", key, key_len,ret);
   addReplyBulkCString(c, reply);
 
   return;
