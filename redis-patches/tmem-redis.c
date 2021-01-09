@@ -5,7 +5,7 @@
 #include "tmem.h"
 #include "tmem_ops.h"
 
-char reply[100];
+char reply[200];/*assuming 200 characters are more than enough to store reply*/
 int ret;
 /*throughout this file we take into account that size of string of length n is actually n+1 (null terminated) [1]*/
 
@@ -27,7 +27,7 @@ void tmemPutCommand(redisClient *c){
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg, *value_arg;
   size_t key_len_arg = key_len+1, value_len_arg = value_len+1;//[1]
-  key_arg = malloc(key_len_arg);
+  key_arg = malloc(key_len_arg);/*TODO place inside if clase*/
   value_arg = malloc(value_len_arg);
   memcpy(key_arg, key, key_len_arg);
   memcpy(value_arg, value, value_len_arg);
@@ -51,14 +51,14 @@ void tmemGetCommand(redisClient *c){
     addReplyBulkCString(c, "ERROR: format is tmemGet (key)");
     return;
   }
-  /*get key pair, everything is assumed to be a string*/
+  /*get key, everything is assumed to be a string*/
   key_len = stringObjectLen(c->argv[1]);
   key = c->argv[1]->ptr;
 
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg, *value_arg;
   size_t key_len_arg = key_len+1, *value_lenp_arg;//[1]
-  key_arg = malloc(key_len_arg);
+  key_arg = malloc(key_len_arg);/*TODO place inside if clase*/
   value_arg = malloc(TMEM_MAX);
   memcpy(key_arg, key, key_len_arg);
 
@@ -96,12 +96,12 @@ void tmemInvalCommand(redisClient *c){
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg;
   size_t key_len_arg = key_len+1;//[1]
-  key_arg = malloc(key_len_arg);
+  key_arg = malloc(key_len_arg);/*TODO place inside if clase*/
   memcpy(key_arg, key, key_len_arg);
 
   ret = tmem_invalidate_page_f(key_arg, key_len_arg);
 
-  sprintf(reply, "Inval:Key %s %ld", key, key_len);
+  sprintf(reply, "Inval:Key %s %ld ,ret %d"", key, key_len,ret);
   addReplyBulkCString(c, reply);
 
   return;
