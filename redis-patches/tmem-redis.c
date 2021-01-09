@@ -27,8 +27,12 @@ void tmemPutCommand(redisClient *c){
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg, *value_arg;
   size_t key_len_arg = key_len+1, value_len_arg = value_len+1;//[1]
-  key_arg = malloc(key_len_arg);/*TODO place inside if clase*/
-  value_arg = malloc(value_len_arg);
+  if(key_arg = malloc(key_len_arg)==NULL){
+    addReplyBulkCString(c, "No memory"); return;
+  }
+  if(value_arg = malloc(value_len_arg)==NULL){
+    addReplyBulkCString(c, "No memory"); return;
+  }
   memcpy(key_arg, key, key_len_arg);
   memcpy(value_arg, value, value_len_arg);
 
@@ -58,20 +62,28 @@ void tmemGetCommand(redisClient *c){
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg, *value_arg;
   size_t key_len_arg = key_len+1, *value_lenp_arg;//[1]
-  key_arg = malloc(key_len_arg);/*TODO place inside if clase*/
-  value_arg = malloc(TMEM_MAX);
+  if(key_arg = malloc(key_len_arg)==NULL){
+    addReplyBulkCString(c, "No memory"); return;
+  }/*TODO place inside if clase*/
+  if(value_arg = malloc(TMEM_MAX)==NULL){
+    addReplyBulkCString(c, "No memory"); return;
+  }
   memcpy(key_arg, key, key_len_arg);
 
   ret = tmem_get_f(key_arg, key_len_arg, value_arg, value_lenp_arg);
 
   /*copy return value to a string*/
   value_len = *value_lenp_arg-1;//[1]
-  value = (char*) malloc(*value_lenp_arg);
+  if(value = (char*) malloc(*value_lenp_arg) ==NULL){
+    addReplyBulkCString(c, "No memory"); return;
+  }
   memcpy(value,value_arg,*value_lenp_arg);
 
   sprintf(reply, "Get:Key %s %ld, Value %s %ld ,ret %d", key, key_len, value, value_len, ret);
   addReplyBulkCString(c, reply);
 
+  free(key_arg);
+  free(value_arg);
   free(value);
   return;
 }
@@ -96,7 +108,9 @@ void tmemInvalCommand(redisClient *c){
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg;
   size_t key_len_arg = key_len+1;//[1]
-  key_arg = malloc(key_len_arg);/*TODO place inside if clase*/
+  if(key_arg = malloc(key_len_arg) ==NULL){
+    addReplyBulkCString(c, "No memory"); return;
+  }
   memcpy(key_arg, key, key_len_arg);
 
   ret = tmem_invalidate_page_f(key_arg, key_len_arg);
@@ -104,6 +118,7 @@ void tmemInvalCommand(redisClient *c){
   sprintf(reply, "Inval:Key %s %ld ,ret %d", key, key_len,ret);
   addReplyBulkCString(c, reply);
 
+  free(key_arg);
   return;
 }
 //stringObjectLen

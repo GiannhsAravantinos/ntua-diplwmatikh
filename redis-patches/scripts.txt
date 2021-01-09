@@ -13,7 +13,7 @@ sudo ip link set dev tap0 up
 
 #run redis server as unikernel with AOF persistance
 
-rumprun qemu -i -M 256 \
+rumprun kvm -i -M 256 \
     -I if,vioif,'-net tap,script=no,ifname=tap0' \
     -W if,inet,static,10.0.120.101/24 \
     -b images/data.iso,/data \
