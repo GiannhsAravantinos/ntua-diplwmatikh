@@ -75,7 +75,7 @@ void tmemGetCommand(redisClient *c){
 
   /*copy return value to a string*/
   value_len = *value_lenp_arg-1;//[1]
-  if(value = (char*) malloc(*value_lenp_arg) == NULL){
+  if((value = (char*) malloc(*value_lenp_arg)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }
   memcpy(value,value_arg,*value_lenp_arg);
