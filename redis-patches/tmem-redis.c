@@ -61,8 +61,8 @@ void tmemGetCommand(redisClient *c){
 
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg, *value_arg;
-  size_t key_len_arg = key_len+1, *value_lenp_arg, value_len;//[1]
-  value_lenp_arg = &value_len;
+  size_t key_len_arg = key_len+1, *value_lenp_arg, value_len1;//[1]
+  value_lenp_arg = &value_len1;
   if((key_arg = malloc(key_len_arg)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }/*TODO place inside if clase*/
