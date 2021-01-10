@@ -27,10 +27,10 @@ void tmemPutCommand(redisClient *c){
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg, *value_arg;
   size_t key_len_arg = key_len+1, value_len_arg = value_len+1;//[1]
-  if(key_arg = malloc(key_len_arg)==NULL){
+  if((key_arg = malloc(key_len_arg)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }
-  if(value_arg = malloc(value_len_arg)==NULL){
+  if((value_arg = malloc(value_len_arg)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }
   memcpy(key_arg, key, key_len_arg);
@@ -61,11 +61,12 @@ void tmemGetCommand(redisClient *c){
 
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg, *value_arg;
-  size_t key_len_arg = key_len+1, *value_lenp_arg;//[1]
-  if(key_arg = malloc(key_len_arg)==NULL){
+  size_t key_len_arg = key_len+1, *value_lenp_arg, value_len;//[1]
+  value_lenp_arg = &value_len;
+  if((key_arg = malloc(key_len_arg)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }/*TODO place inside if clase*/
-  if(value_arg = malloc(TMEM_MAX)==NULL){
+  if((value_arg = malloc(TMEM_MAX)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }
   memcpy(key_arg, key, key_len_arg);
@@ -74,7 +75,7 @@ void tmemGetCommand(redisClient *c){
 
   /*copy return value to a string*/
   value_len = *value_lenp_arg-1;//[1]
-  if(value = (char*) malloc(*value_lenp_arg) ==NULL){
+  if(value = (char*) malloc(*value_lenp_arg) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }
   memcpy(value,value_arg,*value_lenp_arg);
@@ -108,7 +109,7 @@ void tmemInvalCommand(redisClient *c){
   /*Copy values to *void, and perform tmem operation*/
   void *key_arg;
   size_t key_len_arg = key_len+1;//[1]
-  if(key_arg = malloc(key_len_arg) ==NULL){
+  if((key_arg = malloc(key_len_arg)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
   }
   memcpy(key_arg, key, key_len_arg);
