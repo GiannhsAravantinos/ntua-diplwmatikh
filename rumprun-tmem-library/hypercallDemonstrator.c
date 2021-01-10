@@ -1,3 +1,9 @@
+/*This program demonstrats how utmem is to be used by any application.*/
+/*This program is unaware whether tmem is perfored using a system call,
+or a function call*/
+/*It perfors 100 PUT requests, followng 100 GET requests and then 100
+INVAL requests. Finally checks that all INVAL requests went right*/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -8,7 +14,7 @@
 #include <errno.h>
 
 
-#include "rumprun_kvm_hypercall_tmem.h"
+#include "tmem_ops.h"
 
 #define NUM_OF_TEST 100
 int main (){
@@ -54,7 +60,7 @@ int main (){
 
     if(temp_ret ==  -EINVAL){
       printf("USER: key %d was invalidated correctly\n",key);
-    }    
+    }
     key++;
   }
 

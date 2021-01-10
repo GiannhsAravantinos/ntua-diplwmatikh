@@ -1,3 +1,8 @@
+/*In this file tmem system call is implemented.
+We check for tmem operation, that arguments are valid
+and then we process to hypercall. If everything is ok,
+values are copied back to userspace*/
+
 #include <sys/syscallargs.h>
 #include <sys/malloc.h>
 #include <sys/types.h>
@@ -16,6 +21,7 @@ int perform_get_request(void *key_arg,size_t key_len_arg,void *value_arg,size_t 
 int perform_invalidate_page_request(void *key_arg, size_t key_len_arg);
 int get_key(void **key, void *user_key, size_t key_len);
 
+/*kvm_hypercall2 is needed by all 3 operations*/
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
 {
   long ret;
@@ -143,7 +149,7 @@ int perform_get_request
   /*Values copy back to arguments*/
   memcpy(value_lenp_arg, value_lenp, sizeof(size_t));
   memcpy(value_arg, value, *value_lenp);
-  //NOTE! I think there is no need to copy key back
+
 
 mem_free_get:
   free(key, M_TEMP);
@@ -230,7 +236,7 @@ int get_key
 
 
 
-/*actual System Call function implementation*/
+/*Actual System Call implementation*/
 int sys_tmem
 (struct lwp *l, const struct sys_tmem_args *uap, register_t *retval)
 {
@@ -253,8 +259,6 @@ int sys_tmem
   switch(cmd_arg){
 
     case TMEM_PUT:/*we deal with a PUT request*/
-      //printf("KERNEL:got a PUT request\n");
-
       /*lets get key first*/
       key_len = temp_request.put.key_len;
       if(get_key(&key, temp_request.put.key, key_len)){
@@ -290,9 +294,7 @@ int sys_tmem
 
 
     case TMEM_GET:/*we deal with a GET request*/
-      //printf("KERNEL:got a GET request\n");
       /*lets get key first*/
-
       key_len = temp_request.get.key_len;
       if(get_key(&key, temp_request.get.key, key_len)){
         printf("KERNEL:ERROR bad key\n");
@@ -335,8 +337,6 @@ int sys_tmem
 
 
     case TMEM_INVAL:/*we deal with an INVAL request*/
-      //printf("KERNEL:got an INVAL request\n");
-
       /*lets get key*/
       key_len = temp_request.inval.key_len;
       if(get_key(&key, temp_request.inval.key, key_len)){
@@ -354,14 +354,13 @@ int sys_tmem
       goto syscall_out;
       break;
 
-    default:
+    default:/*cmd_arg is not valid*/
       printf("KERNEL:ERROR unknow tmem operation\n");
       break;
   }
 
 syscall_out:
-  //printf("KERNEL: syscall exits now\n");
-
+  /*returning value of a syscall in NetBSD is somewhat comparing to linux*/
   *retval = ret;
   return 0;
 }

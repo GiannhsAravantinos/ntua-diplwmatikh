@@ -1,4 +1,4 @@
-#make server with AOF persistance
+#make redis-server with AOF persistance
 make
 
 #bake server

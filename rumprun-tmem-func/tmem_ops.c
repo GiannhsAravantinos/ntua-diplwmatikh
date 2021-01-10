@@ -7,6 +7,10 @@
 #include "tmem.h"
 #include "tmem_kvm_hypercall.h"
 
+/* This file contatins the implementation of 3 tmem kvm operations*/
+/*PUT, GET, INVAL*/
+
+/*kvm_hypercall2 is needed by all 3 operations*/
 int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
 {
   long ret;
@@ -17,7 +21,8 @@ int kvm_hypercall2(unsigned int nr, unsigned long p1,unsigned long p2)
   return ret;
 }
 
-//as defined on rumpkernels
+/*Implemation of vtophys functions. This functions perfroms virtual to physical address translations*/
+/*Its implemention is taken from rumpkernels, and is different than NetBSD one*/
 typedef unsigned long vaddr_t;
 typedef unsigned long paddr_t;
 paddr_t vtophys(vaddr_t va){
@@ -25,9 +30,11 @@ paddr_t vtophys(vaddr_t va){
 }
 
 /*Tmem functions, each for every hypercall operation available*/
-int tmem_put_f
+int tmem_put
 (void *key_arg, size_t key_len_arg, void *value_arg, size_t value_len_arg){
   /* Local Variable Declarations */
+  /* We use different variables than function arguments to perfrom the hypercall,
+  and we copy values back afterwards*/
   int ret = 0;
   void *key=NULL, *value=NULL;
   size_t key_len, value_len;
@@ -35,7 +42,7 @@ int tmem_put_f
   key_len = key_len_arg;
   value_len = value_len_arg;
   /*Memory allocation */
-  if(value_len > TMEM_MAX){
+  if(value_len > TMEM_MAX){/*tmem works on 1 mega byte of value per operation*/
     ret = -1;
     printf("Value too long\n");
     goto put_free;
@@ -77,9 +84,11 @@ put_free:
 }
 
 
-int tmem_get_f
+int tmem_get
 (void *key_arg, size_t key_len_arg, void *value_arg, size_t *value_lenp_arg){
   /* Local Variable Declarations */
+  /* We use different variables than function arguments to perfrom the hypercall,
+  and we copy values back afterwards*/
   int ret = 0;
   void *key=NULL, *value=NULL;
   size_t key_len, *value_lenp=NULL;
@@ -89,7 +98,7 @@ int tmem_get_f
   if((key = malloc(key_len))==NULL){
     ret = -1; goto get_free;
   }
-  if((value = malloc(TMEM_MAX))==NULL){
+  if((value = malloc(TMEM_MAX))==NULL){/*tmem works on 1 mega byte of value per operation*/
     ret = -1; goto get_free;
   }
   if((value_lenp = malloc(sizeof(size_t)))==NULL){
@@ -118,7 +127,7 @@ int tmem_get_f
     ret = -1;
     goto get_free;
   }
-  /*Values copy back to arguments*/
+  /*Values are copied back to arguments*/
   memcpy(value_lenp_arg, value_lenp, sizeof(size_t));
   memcpy(value_arg, value, *value_lenp);
 
@@ -130,9 +139,11 @@ get_free:
 }
 
 
-int tmem_invalidate_page_f
+int tmem_invalidate_page
 (void *key_arg, size_t key_len_arg){
   /* Local Variable Declarations */
+  /* We use different variables than function arguments to perfrom the hypercall,
+  and we copy values back afterwards*/
   int ret = 0;
   void *key=NULL;
   size_t key_len;

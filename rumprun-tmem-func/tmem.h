@@ -2,6 +2,8 @@
 #define TMEM_H
 
 #include <sys/types.h>
+/*Every definition is taken as is from origia utmem driver implementation.
+If those definitions are changes, then so should these ones here*/
 
 /* TMEM operation numbers */
 #define TMEM_GET 0
@@ -30,6 +32,7 @@ struct tmem_invalidate_request {
     size_t key_len;
 };
 
+/*Not actually used in tmem operations anymore*/
 struct tmem_answer{
 	void *value;
 	size_t *value_lenp;

@@ -2,6 +2,8 @@
 #define _TMEM_KERNEL_H
 
 #include <sys/types.h>
+/*Every definition is taken as is from origia utmem driver implementation.
+If those definitions are changes, then so should these ones here*/
 
 /* KVM Hypercall commands */
 #define PV_TMEM_GET_OP		0
@@ -35,6 +37,7 @@ struct tmem_invalidate_request {
     size_t key_len;
 };
 
+/*Not actually used in tmem operations anymore*/
 struct tmem_answer{
 	void *value;
 	size_t *value_lenp;
@@ -51,7 +54,7 @@ struct tmem_request {
 
 
 
-//implementation of ALTERNATIVE MACRO
+/*implementation of ALTERNATIVE MACRO*/
 
 #define __stringify_1(x...) #x// Taken from include/linux/stringify.h
 #define __stringify(x...) __stringify_1(x)
@@ -97,16 +100,12 @@ struct tmem_request {
 
 
 
-//implementation of kvm_hypercall2
+/*definitons required for kvm_hypercall2() function*/
 
 #define KVM_HC_TMEM   9 //Taken from include/uapi/linux/kvm_para.h !WARNING 9 MAYBE USED
 #define X86_FEATURE_VMMCALL     (8*32+15) //Taken from arch/x86/include/asm/kvm_para.h
-#define PV_TMEM_NON_EXISTANT_OP 100 //Not declared in /include/tmem/tmem_ops.h
 
 #define KVM_HYPERCALL \
         ALTERNATIVE(".byte 0x0f,0x01,0xc1", ".byte 0x0f,0x01,0xd9", X86_FEATURE_VMMCALL)
-
-#define DUMMY_MACRO ".byte 0x0f,0x01,0xc1"
-
 
 #endif

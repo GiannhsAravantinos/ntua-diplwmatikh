@@ -8,7 +8,7 @@
 #define PV_TMEM_PUT_OP		1
 #define PV_TMEM_INVALIDATE_OP	2
 
-//implementation of ALTERNATIVE MACRO
+/*implementation of ALTERNATIVE MACRO*/
 
 #define __stringify_1(x...) #x// Taken from include/linux/stringify.h
 #define __stringify(x...) __stringify_1(x)
@@ -54,15 +54,12 @@
 
 
 
-//implementation of kvm_hypercall2
+/*definitons required for kvm_hypercall2() function*/
 
-#define KVM_HC_TMEM   9 //Taken from include/uapi/linux/kvm_para.h !WARNING 9 MAYBE USED
+#define KVM_HC_TMEM   9 //Taken from include/uapi/linux/kvm_para.h !WARNING 9 MAYBE USED *[1]
 #define X86_FEATURE_VMMCALL     (8*32+15) //Taken from arch/x86/include/asm/kvm_para.h
-#define PV_TMEM_NON_EXISTANT_OP 100 //Not declared in /include/tmem/tmem_ops.h
 
 #define KVM_HYPERCALL \
         ALTERNATIVE(".byte 0x0f,0x01,0xc1", ".byte 0x0f,0x01,0xd9", X86_FEATURE_VMMCALL)
-
-#define DUMMY_MACRO ".byte 0x0f,0x01,0xc1"
 
 #endif

@@ -1,0 +1,18 @@
+Σε αυτό το directory περιέχεται το porting της tmem ως system call σε unikernel περιβάλλον.
+!Προσοχή, για να λειτουργήσει πρέπει πρώτα να έχουν τοποθετηθεί τα αρχεία της system call
+και να έχει γίνει build το rumprun toolchain από την αρχή. Δεν λειτουργεί με το vanilla
+rumprun.
+
+Τα αρχεία είναι
+1.tmem.h
+Απαραίτητα declarions που χρησιμοποιεί το implementation της system call
+.tmem_ops.h
+Περιέχει τα declarations των 3 operations. Το API που βλέπει κάθε εφαρμογή
+3.tmem_ops.c
+Περέχει το implemention των 3 operations, μέχρι και την κλήση της tmem system call
+
+Επίσης υπάρχει και ένα userspace πρόγραμμα που επιδεικνύει την χρήση όλου του κώδικα, το hypercallDemonstrator.c
+Το Makefile δημιουργεί το αντίστοιχο unikernel, μέχρι και την μορφή .bin
+Για να δημιουργηθεί σωστά πρέπει να τεθούν οι μεταβλητές στην αρχή στο σωστό path
+Για να εκτελεστεί σωστά πρέπει να τρέξουμε το unikernel επάνω στο kvm, δηλαδή
+$rumprun kvm -i hypercallDemonstrator.bin
