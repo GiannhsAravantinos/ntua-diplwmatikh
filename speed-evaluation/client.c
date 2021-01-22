@@ -185,6 +185,12 @@ void saveResults(int fd, time_t *times){
     sum+= times[i];
   }
 
+  if(sum==0){
+    sprintf(buf,"Error, too fast\n");
+    write(fd,buf,strlen(buf));
+    return;
+  }
+
   avg_time = (double) sum / NUM_OF_ITERATIONS;
   avg_ops =  num_of_keys/ avg_time ;
 
@@ -266,7 +272,7 @@ time_t performOneIteration(int fd, char *value, char *prefix){
 
   tt=time(NULL)-tt;
 
-  //emptyRedis(fd, prefix);
+  emptyRedis(fd, prefix);
   return tt;
 }
 
