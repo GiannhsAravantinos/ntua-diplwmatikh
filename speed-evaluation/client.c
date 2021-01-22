@@ -266,7 +266,7 @@ time_t performOneIteration(int fd, char *value, char *prefix){
 
   tt=time(NULL)-tt;
 
-  emptyRedis(fd, prefix);
+  //emptyRedis(fd, prefix);
   return tt;
 }
 
