@@ -8,7 +8,7 @@ but the code can be easily changed to use system call version.*/
 #include "redis.h"
 #include "tmem_ops.h"
 
-char reply[200];/*assuming 200 characters are more than enough to store reply*/
+char reply[1024];/*assuming 1KB characters are more than enough to store reply*/
 int ret;        /*for longer key/value pair this might cause errors*/
 /*Throughout this file we take into account that size of string of length n is actually n+1 (null terminated) [1]*/
 
@@ -41,7 +41,12 @@ void tmemPutCommand(redisClient *c){
 
   ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg);
 
-  sprintf(reply, "Put:Key %s %ld, Value %s %ld ,ret %d", key, key_len, value, value_len, ret);
+  if(ret!=-1){
+    sprintf(reply, "+OK");
+  }
+  else{
+    sprintf(reply, "+ERROR");
+  }
   addReplyBulkCString(c, reply);
 
   free(key_arg);
@@ -83,7 +88,12 @@ void tmemGetCommand(redisClient *c){
   }
   memcpy(value,value_arg,*value_lenp_arg);
 
-  sprintf(reply, "Get:Key %s %ld, Value %s %ld ,ret %d", key, key_len, value, value_len, ret);
+  if(ret!=-1){
+    sprintf(reply, "+%ld\n%s", strlen(value),value);
+  }
+  else{
+    sprintf(reply, "+ERROR");
+  }
   addReplyBulkCString(c, reply);
 
   free(key_arg);
@@ -117,8 +127,13 @@ void tmemInvalCommand(redisClient *c){
   memcpy(key_arg, key, key_len_arg);
 
   ret = tmem_invalidate_page(key_arg, key_len_arg);
+  if(ret!=-1){
+    sprintf(reply, "+OK");
+  }
+  else{
+    sprintf(reply, "+ERROR");
+  }
 
-  sprintf(reply, "Inval:Key %s %ld ,ret %d", key, key_len,ret);
   addReplyBulkCString(c, reply);
 
   free(key_arg);
