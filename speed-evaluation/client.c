@@ -236,7 +236,7 @@ void emptyRedis(int fd,char *prefix){
   else{//tmemCommands, we must iterate over all keys
     for(i=0;i<NUM_OF_KEYS;i++){
       key = createSeqKeys(prefix,i);
-      sprintf(buf,"tmemIval %s\n",key);
+      sprintf(buf,"tmemInval %s\n",key);
       insist_write(fd, buf, strlen(buf));
       read(fd,buf,100);
       free(key);
