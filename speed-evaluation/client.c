@@ -219,13 +219,13 @@ int establish_connection(){
   /* assign IP, PORT */
   sa.sin_family = AF_INET;
   sa.sin_port = htons(PORT);
-  if(command_type<=3){
+  /*if(command_type<=3){ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO uncomment
     sa.sin_addr.s_addr = inet_addr(HOST);
   }
   else{
     sa.sin_addr.s_addr = inet_addr(LOCALHOST);
-  }
-
+  }*/
+  sa.sin_addr.s_addr = inet_addr(LOCALHOST);
   /* connect the client socket to server socket */
   if (connect(sockfd, (struct sockaddr *) &sa, sizeof(sa)) != 0) {
       printf("ERROR:connection with the server failed...\n");
