@@ -20,6 +20,7 @@ rumprun kvm -i -M 256 \
     -b images/datapers.img,/backup \
     -- bin/redis-server.bin /data/conf/redisaof.conf
 
+#no AOF
 rumprun kvm -i -M 256 \
     -I if,vioif,'-net tap,script=no,ifname=tap0' \
     -W if,inet,static,10.0.120.101/24 \

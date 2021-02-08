@@ -27,7 +27,7 @@ echo "vanilla set requests"
 
 ./client 1 8192 1024
 ./client 1 8192 2048
-./client 3 8192 4096
+./client 1 8192 4096
 
 ./client 1 16384 1024
 ./client 1 16384 2048
