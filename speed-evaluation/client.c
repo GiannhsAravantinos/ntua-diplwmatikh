@@ -17,7 +17,7 @@
 
 #include "redis-testing.h"
 
-char commands[][8] = {"get","set","tmemGet","tmemPut"};
+char commands[][8] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put"};
 int command_type = COMMAND_TYPE;
 int value_size = VALUE_SIZE;
 int num_of_keys= NUM_OF_KEYS;
@@ -105,7 +105,7 @@ char *createReq(int req_type, char *key, char* value, int *req_size){
   char *command, *request;
   size_t command_len, key_len, value_len, request_size;
 
-  if(req_type<0 || req_type >3){
+  if(req_type<0 || req_type >5){
     printf("ERROR: unknown reqType\n");
     *req_size=-1;return NULL;
   }
@@ -161,11 +161,12 @@ ssize_t insist_write(int fd, const void *buf, size_t cnt)
 }
 
 int getSaveFileDescriptor(){
+  char print_commands[][8] = {"get","set","tmemGet","tmemPut","TmemGet","TmemPut"};
   int fd;
   char filename[100];
 
-  sprintf(filename,"Result_%s_%d_%d.txt",commands[command_type],value_size,num_of_keys);
-
+  sprintf(filename,"Result_%s_%d_%d.txt",print_commands[command_type],value_size,num_of_keys);
+  printf("%s\n",filename);
   remove(filename);
   fd = open(filename,O_CREAT | O_RDWR,S_IRWXU);
   if(fd==-1){
@@ -218,7 +219,12 @@ int establish_connection(){
   /* assign IP, PORT */
   sa.sin_family = AF_INET;
   sa.sin_port = htons(PORT);
-  sa.sin_addr.s_addr = inet_addr(HOST);
+  if(command_type<=3){
+    sa.sin_addr.s_addr = inet_addr(HOST);
+  }
+  else{
+    sa.sin_addr.s_addr = inet_addr(LOCALHOST);
+  }
 
   /* connect the client socket to server socket */
   if (connect(sockfd, (struct sockaddr *) &sa, sizeof(sa)) != 0) {
@@ -239,10 +245,19 @@ void emptyRedis(int fd,char *prefix){
     read(fd,buf,100);
     return;
   }
-  else{//tmemCommands, we must iterate over all keys
+  else if (command_type==2 || command_type==3){//tmemCommands, we must iterate over all keys
     for(i=0;i<NUM_OF_KEYS;i++){
       key = createSeqKeys(prefix,i);
       sprintf(buf,"tmemInval %s\n",key);
+      insist_write(fd, buf, strlen(buf));
+      read(fd,buf,100);
+      free(key);
+    }
+  }
+  else{//original utmem
+    for(i=0;i<NUM_OF_KEYS;i++){
+      key = createSeqKeys(prefix,i);
+      sprintf(buf,"tmem.inval %s\n",key);
       insist_write(fd, buf, strlen(buf));
       read(fd,buf,100);
       free(key);
