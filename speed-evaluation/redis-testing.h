@@ -4,8 +4,9 @@
 /* IP-PORT of redis Unikernel*/
 #define PORT 6379
 #define HOST "10.0.120.101"
-#define LOCALHOST "127.0.0.1"
 
+#define LOCALHOST "127.0.0.1"
+#define LOCAL_PORT 22224
 /*redis-commands*/
 #define GET 0
 #define SET 1

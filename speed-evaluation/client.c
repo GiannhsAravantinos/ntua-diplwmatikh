@@ -218,7 +218,7 @@ int establish_connection(){
 
   /* assign IP, PORT */
   sa.sin_family = AF_INET;
-  sa.sin_port = htons(PORT);
+  sa.sin_port = htons(LOCAL_PORT);//!!!!!!!!!!TODO fixed
   /*if(command_type<=3){ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO uncomment
     sa.sin_addr.s_addr = inet_addr(HOST);
   }
