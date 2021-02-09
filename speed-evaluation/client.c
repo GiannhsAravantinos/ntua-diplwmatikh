@@ -207,6 +207,7 @@ void saveResults(int fd, time_t *times){
 
 int establish_connection(){
   int sockfd;
+  int err;
   struct sockaddr_in sa;
 
   /*socket creation*/
@@ -227,8 +228,8 @@ int establish_connection(){
   }*/
   sa.sin_addr.s_addr = inet_addr(LOCALHOST);
   /* connect the client socket to server socket */
-  if (connect(sockfd, (struct sockaddr *) &sa, sizeof(sa)) != 0) {
-      printf("ERROR:connection with the server failed...\n");
+  if ((err=connect(sockfd, (struct sockaddr *) &sa, sizeof(sa))) != 0) {
+      printf("ERROR:connection with the server failed...%d\n",err);
       return 0;
   }
   return sockfd;
