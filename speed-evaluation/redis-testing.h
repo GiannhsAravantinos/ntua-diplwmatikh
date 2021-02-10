@@ -21,6 +21,6 @@
 #define NUM_OF_KEYS 2*1024
 #define NUM_OF_ITERATIONS 10
 
-#define DURATION 120
+#define DURATION 240
 
 #endif
