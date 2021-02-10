@@ -7,6 +7,7 @@
 ./client2 3 8192
 ./client2 3 16384
 ./client2 3 32768
+./client2 3 65536
 
 ./client2 5 512
 ./client2 5 1024
@@ -15,3 +16,4 @@
 ./client2 5 8192
 ./client2 5 16384
 ./client2 5 32768
+./client2 5 65536
