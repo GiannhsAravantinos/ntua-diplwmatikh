@@ -1,6 +1,8 @@
 #make redis-server with AOF persistance
 make
 
+export PATH="${PATH}:$(pwd)/rumprun/bin"
+
 #bake server
 
 rumprun-bake hw_generic bin/redis-server.bin bin/redis-server
