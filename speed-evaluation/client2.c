@@ -138,7 +138,7 @@ char *createReq(int req_type, char *key, char* value, int *req_size){
 
 ssize_t insist_write(int fd, const void *buf, size_t cnt)
 {
-  int chunk = 1024*16,step;
+  int chunk = 1024,step;
   ssize_t ret;
   size_t orig_cnt = cnt;
   //printf("Original count %d\n",(int) cnt);
