@@ -17,7 +17,7 @@
 
 #include "redis-testing.h"
 
-char commands[][8] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put"};
+char commands[][8] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put","get","set"};
 int command_type = COMMAND_TYPE;
 int value_size = VALUE_SIZE;
 /*defaults*/
@@ -31,22 +31,7 @@ int min(int a,int b){
   }
 }
 
-char *createSeqKeys(char* prefix,int count){
-  char s_count[10];
-  char *buf;
 
-  sprintf(s_count,"%d",count);
-  if((buf=malloc(strlen(prefix)+strlen(s_count)+1))==NULL){
-    printf("ERROR: memory\n");
-    return NULL;
-  }
-  memcpy(buf,prefix,strlen(prefix));
-  memcpy(buf+strlen(prefix),s_count,strlen(s_count));
-  buf[strlen(buf)]='\0';
-
-  count++;
-  return buf;
-}
 
 char *createLargeValue(int size){
   /*
@@ -104,7 +89,7 @@ char *createReq(int req_type, char *key, char* value, int *req_size){
   char *command, *request;
   size_t command_len, key_len, value_len, request_size;
 
-  if(req_type<0 || req_type >5){
+  if(req_type<0 || req_type >7){
     printf("ERROR: unknown reqType\n");
     *req_size=-1;return NULL;
   }
@@ -162,7 +147,8 @@ ssize_t insist_write(int fd, const void *buf, size_t cnt)
 }
 
 int getSaveFileDescriptor(){
-  char print_commands[][20] = {"get","set","tmemGet","tmemPut","origTmemGet","origTmemPut"};
+  char print_commands[][20] = {"get","set","tmemGet","tmemPut","origTmemGet","origTmemPut",
+                              "originalGet","originalSet"};
   int fd;
   char filename[100];
 
@@ -226,7 +212,8 @@ int establish_connection(){
 void invalidateKey(int fd,char *key){
   char buff[100];
 
-  if(command_type==1 || command_type==0){
+  if(command_type==1 || command_type==0 ||
+     command_type==6 || command_type==7){
     sprintf(buff,"FLUSHALL\n");
     insist_write(fd, buff, strlen(buff));
     read(fd,buff,100);
