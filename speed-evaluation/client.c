@@ -14,6 +14,8 @@
 #include <fcntl.h>
 
 #include <time.h>
+#include <sys/time.h>
+#define USEC 1000000
 
 #include "redis-testing.h"
 
@@ -272,9 +274,12 @@ time_t performOneIteration(int fd, char *value, char *prefix){
   char reply[100];
 
   time_t tt;
+  struct timeval t1, t2;
+  double accurateTime;
   int i,size;
 
   tt=time(NULL);
+  gettimeofday(&t1, 0);
   for(i=0;i<num_of_keys;i++){
     key = createSeqKeys(prefix,i);
 
@@ -287,7 +292,10 @@ time_t performOneIteration(int fd, char *value, char *prefix){
   }
 
   tt=time(NULL)-tt;
+  gettimeofday(&t2, 0);
+  accurateTime = (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
 
+  printf("Accurately took %f\n",accurateTime);
   emptyRedis(fd, prefix);
   return tt;
 }
