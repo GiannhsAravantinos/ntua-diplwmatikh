@@ -19,6 +19,11 @@
 
 #include "redis-testing.h"
 
+struct myTime{
+  time_t tt;
+  double accTime;
+};
+
 char commands[][8] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put"};
 int command_type = COMMAND_TYPE;
 int value_size = VALUE_SIZE;
@@ -179,13 +184,15 @@ int getSaveFileDescriptor(){
   return fd;
 }
 
-void saveResults(int fd, time_t *times){
+void saveResults(int fd, struct myTime *times){
   double avg_ops,avg_time;
   int i,sum=0;
   char buf[100];
+  double accuarateSum=0, acc_avg_time, acc_avg_ops;
 
   for(i=0;i<NUM_OF_ITERATIONS;i++){
-    sum+= times[i];
+    sum+= times[i].tt;
+    accuarateSum += times[i].accTime;
   }
 
   if(sum==0){
@@ -197,11 +204,21 @@ void saveResults(int fd, time_t *times){
   avg_time = (double) sum / NUM_OF_ITERATIONS;
   avg_ops =  num_of_keys/ avg_time ;
 
+  acc_avg_time = accuarateSum / NUM_OF_ITERATIONS;
+  acc_avg_ops = num_of_keys / acc_avg_time;
+
   sprintf(buf,"Average %f ops/seconds",avg_ops);
   write(fd,buf,strlen(buf));
   sprintf(buf,"\nAverage %f seconds",avg_time);
   write(fd,buf,strlen(buf));
   sprintf(buf,"\nTotal %d seconds",sum);
+  write(fd,buf,strlen(buf));
+
+  sprintf(buf,"\nACCURATE\nAverage %f ops/seconds",acc_avg_ops);
+  write(fd,buf,strlen(buf));
+  sprintf(buf,"\nAverage %f seconds",acc_avg_time);
+  write(fd,buf,strlen(buf));
+  sprintf(buf,"\nTotal %f seconds",accuarateSum);
   write(fd,buf,strlen(buf));
   return;
 
@@ -230,7 +247,7 @@ int establish_connection(){
     sa.sin_addr.s_addr = inet_addr(LOCALHOST);
     sa.sin_port = htons(LOCAL_PORT);
   }
-  
+
   /* connect the client socket to server socket */
   if ((err=connect(sockfd, (struct sockaddr *) &sa, sizeof(sa))) != 0) {
       printf("ERROR:connection with the server failed...%d\n",err);
@@ -270,7 +287,7 @@ void emptyRedis(int fd,char *prefix){
   }
 }
 
-time_t performOneIteration(int fd, char *value, char *prefix){
+struct myTime performOneIteration(int fd, char *value, char *prefix){
   char *key;
   char *req=NULL;
   char reply[100];
@@ -278,10 +295,13 @@ time_t performOneIteration(int fd, char *value, char *prefix){
   time_t tt;
   struct timeval t1, t2;
   double accurateTime;
+  struct myTime stime;
+
   int i,size;
 
-  tt=time(NULL);
   gettimeofday(&t1, 0);
+  tt=time(NULL);
+
   for(i=0;i<num_of_keys;i++){
     key = createSeqKeys(prefix,i);
 
@@ -299,7 +319,10 @@ time_t performOneIteration(int fd, char *value, char *prefix){
 
   printf("Accurately took %f\n",accurateTime);
   emptyRedis(fd, prefix);
-  return tt;
+
+  stime.tt=tt;
+  stime.accTime=accurateTime;
+  return stime;
 }
 
 void setParameters(int argc, char *argv[]){
@@ -328,7 +351,7 @@ int main(int argc, char *argv[]){
 
   int i;
 
-  time_t times[NUM_OF_ITERATIONS];
+  struct myTime times[NUM_OF_ITERATIONS];
 
   char *prefix="Key";
   char *value = createLargeValue(value_size);
@@ -337,7 +360,7 @@ int main(int argc, char *argv[]){
   for(i=0;i<NUM_OF_ITERATIONS;i++){
     printf("New iteration %d\n",i);
     times[i] = performOneIteration(sockfd, value, prefix);
-    printf("Time %d\n",(int)times[i]);
+    printf("Time %d\n",(int)times[i].tt);
   }
 
   saveResults(savefd, times);
