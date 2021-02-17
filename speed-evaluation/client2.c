@@ -280,6 +280,8 @@ void setParameters(int argc, char *argv[]){
 }
 
 int main(int argc, char *argv[]){
+
+  printf("%s",commands[5]);
   setParameters(argc, argv);
 
   int sockfd;
