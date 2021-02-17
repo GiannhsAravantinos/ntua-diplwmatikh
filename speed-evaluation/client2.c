@@ -17,7 +17,7 @@
 
 #include "redis-testing.h"
 
-char commands[][8] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put","get","set"};
+char commands[][10] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put","get","set"};
 int command_type = COMMAND_TYPE;
 int value_size = VALUE_SIZE;
 /*defaults*/
