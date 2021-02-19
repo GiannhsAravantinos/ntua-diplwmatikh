@@ -146,7 +146,7 @@ void tmemPutTimeCommand(redisClient *c){
   struct timeval t1, t2;
   struct timeval t3, t4;
   struct myTimes times;
-  times.driver=0;times.redisTime=0;times.hypercallTime=0;
+  times.driverTime=0;times.redisTime=0;times.hypercallTime=0;
 
   char *key,*value;
   size_t key_len, value_len;
