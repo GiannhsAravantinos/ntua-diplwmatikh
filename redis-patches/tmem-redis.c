@@ -4,6 +4,8 @@ but the code can be easily changed to use system call version.*/
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#define USEC 1000000
 
 #include "redis.h"
 #include "tmem_ops.h"
@@ -141,6 +143,8 @@ void tmemInvalCommand(redisClient *c){
 }
 
 void tmemPutTimeCommand(redisClient *c){
+  struct timeval t1, t2;
+
   char *key,*value;
   size_t key_len, value_len;
 
@@ -150,6 +154,7 @@ void tmemPutTimeCommand(redisClient *c){
     return;
   }
   /*Get key-value pair, everything is assumed to be a string*/
+  gettimeofday(&t1, 0);
   key_len = stringObjectLen(c->argv[1]);
   key = c->argv[1]->ptr;
   value_len = stringObjectLen(c->argv[2]);
@@ -169,8 +174,11 @@ void tmemPutTimeCommand(redisClient *c){
 
   ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg);
   //ret = 0;
+  gettimeofday(&t2, 0);
+  double redisTime = (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
+
   if(ret!=-1){
-    sprintf(reply, "+OK");
+    sprintf(reply, "+OK redisTime %f",redisTime);
   }
   else{
     sprintf(reply, "+ERROR");

@@ -217,6 +217,7 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req)
   gettimeofday(&t1, 0);
   insist_write(fd,req,strlen(req));
   read(fd,reply,100);
+  printf("%s",reply);
   gettimeofday(&t2, 0);
 
   times.networkTime = (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
