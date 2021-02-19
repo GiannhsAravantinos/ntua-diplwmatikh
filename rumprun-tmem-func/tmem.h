@@ -2,6 +2,16 @@
 #define TMEM_H
 
 #include <sys/types.h>
+
+/*In order to breakdown stages */
+#include <sys/time.h>
+#define USEC 1000000
+struct myTimes{
+  double redisTime;
+  double driverTime;
+  double hypercallTime;
+};
+
 /*Every definition is taken as is from origia utmem driver implementation.
 If those definitions are changes, then so should these ones here*/
 

@@ -94,8 +94,7 @@ char *createReq(int req_type, char *key, char* value, int *req_size){
   return request;
 }
 
-ssize_t insist_write(int fd, const void *buf, size_t cnt)
-{
+ssize_t insist_write(int fd, const void *buf, size_t cnt){
   int chunk = 1024*1024,step;
   ssize_t ret;
   size_t orig_cnt = cnt;
@@ -188,6 +187,7 @@ void invalidateKey(int fd,char *key){
   read(fd,buff,100);
   return;
 }
+
 void setKey(int fd,char *prefix,char *value){
   char *buff;
   buff = malloc(strlen(prefix) + strlen(value)+100);/*git enough for anything*/
@@ -213,7 +213,6 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req)
   }
 
 
-  printf("%s\n",req);
   gettimeofday(&t1, 0);
   insist_write(fd,req,strlen(req));
   read(fd,reply,100);
@@ -260,6 +259,7 @@ int main(int argc, char *argv[]){
   char *value = createLargeValue(value_size);
 
   char *req = createReq(command_type,prefix,value,&size);
+  printf("%s\n",req);
 
   for(i=0;i<num_of_tests;i++){
     printf("New iteration %d\n",i);

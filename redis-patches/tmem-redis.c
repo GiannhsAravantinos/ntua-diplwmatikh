@@ -41,7 +41,7 @@ void tmemPutCommand(redisClient *c){
   memcpy(key_arg, key, key_len_arg);
   memcpy(value_arg, value, value_len_arg);
 
-  ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg);
+  ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg,NULL);
 
   if(ret!=-1){
     sprintf(reply, "+OK");
@@ -81,7 +81,7 @@ void tmemGetCommand(redisClient *c){
   }
   memcpy(key_arg, key, key_len_arg);
 
-  ret = tmem_get(key_arg, key_len_arg, value_arg, value_lenp_arg);
+  ret = tmem_get(key_arg, key_len_arg, value_arg, value_lenp_arg,NULL);
 
   /*Copy return value to a string*/
   value_len = *value_lenp_arg-1;//[1]
@@ -128,7 +128,7 @@ void tmemInvalCommand(redisClient *c){
   }
   memcpy(key_arg, key, key_len_arg);
 
-  ret = tmem_invalidate_page(key_arg, key_len_arg);
+  ret = tmem_invalidate_page(key_arg, key_len_arg,NULL);
   if(ret!=-1){
     sprintf(reply, "+OK");
   }
@@ -144,6 +144,9 @@ void tmemInvalCommand(redisClient *c){
 
 void tmemPutTimeCommand(redisClient *c){
   struct timeval t1, t2;
+  struct timeval t3, t4;
+  struct myTimes times;
+  times.driver=0;times.redisTime=0;times.hypercallTime=0;
 
   char *key,*value;
   size_t key_len, value_len;
@@ -172,13 +175,16 @@ void tmemPutTimeCommand(redisClient *c){
   memcpy(key_arg, key, key_len_arg);
   memcpy(value_arg, value, value_len_arg);
 
-  ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg);
-  //ret = 0;
+  gettimeofday(&t3,0);
+  ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg, &times);
+  gettimeofday(&t4,0);
+
   gettimeofday(&t2, 0);
-  double redisTime = (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
+  times.redisTime = (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
+  times.driverTime = (double) ((t4.tv_sec - t3.tv_sec) * USEC + t4.tv_usec - t3.tv_usec) / USEC;
 
   if(ret!=-1){
-    sprintf(reply, "+OK redisTime %f",redisTime);
+    sprintf(reply, "+OK\nredisTime %f\ndriverTime %f\nhypercallTime %f\n",times.redisTime, times.driverTime, times.hypercallTime);
   }
   else{
     sprintf(reply, "+ERROR");

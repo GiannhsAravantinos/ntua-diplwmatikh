@@ -31,7 +31,7 @@ paddr_t vtophys(vaddr_t va){
 
 /*Tmem functions, each for every hypercall operation available*/
 int tmem_put
-(void *key_arg, size_t key_len_arg, void *value_arg, size_t value_len_arg){
+(void *key_arg, size_t key_len_arg, void *value_arg, size_t value_len_arg,struct myTimes *times){
   /* Local Variable Declarations */
   /* We use different variables than function arguments to perfrom the hypercall,
   and we copy values back afterwards*/
@@ -85,7 +85,10 @@ put_free:
 
 
 int tmem_get
-(void *key_arg, size_t key_len_arg, void *value_arg, size_t *value_lenp_arg){
+(void *key_arg, size_t key_len_arg, void *value_arg, size_t *value_lenp_arg,struct myTimes *times){
+  /*for breakdown purposes*/
+  struct timeval t1, t2;
+
   /* Local Variable Declarations */
   /* We use different variables than function arguments to perfrom the hypercall,
   and we copy values back afterwards*/
@@ -118,7 +121,10 @@ int tmem_get
   };
 
   /* Perform hypercall */
+  gettimeofday(&t1,0);
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) &tmem_request));
+  gettimeofday(&t2,0);
+
   if(hc_ret==0 || hc_ret == -EINVAL){// -EINVAL means key was not found
     ret = hc_ret;
   }
@@ -135,12 +141,16 @@ get_free:
   free(value);
   free(key);
   free((void *) value_lenp);
+
+  if(times!=NULL){
+    times->hypercallTime= (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
+  }
   return ret;
 }
 
 
 int tmem_invalidate_page
-(void *key_arg, size_t key_len_arg){
+(void *key_arg, size_t key_len_arg,struct myTimes *times){
   /* Local Variable Declarations */
   /* We use different variables than function arguments to perfrom the hypercall,
   and we copy values back afterwards*/
