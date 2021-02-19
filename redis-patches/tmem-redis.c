@@ -221,7 +221,7 @@ void tmemGetTimeCommand(redisClient *c){
   }
   memcpy(key_arg, key, key_len_arg);
 
-  ret = tmem_get(key_arg, key_len_arg, value_arg, value_lenp_arg);
+  ret = tmem_get(key_arg, key_len_arg, value_arg, value_lenp_arg,NULL);
 
   /*Copy return value to a string*/
   value_len = *value_lenp_arg-1;//[1]
