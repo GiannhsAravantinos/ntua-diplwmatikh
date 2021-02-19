@@ -72,21 +72,23 @@ char *createReq(int req_type, char *key, char* value, int *req_size){
   key_len = strlen(key);
   value_len = strlen(value);
 
-  request_size = command_len + key_len + value_len + 3 +1;
+  if(command_type==9){
+    request_size = command_len + key_len + value_len + 3 +1;
+  }
+  else{// 8
+    request_size = command_len + key_len + +1;
+  }
   if((request = (char *) malloc(request_size))==NULL){
     printf("ERROR: memory not enough\n");
     *req_size=-1;return NULL;
   }
 
-  memcpy(request, command, command_len);
-  memcpy(request+command_len+1, key, key_len);
-  memcpy(request+command_len+key_len+2, value, value_len);
-
-  request[command_len]= ' ';
-  request[command_len+key_len+1]= ' ';
-  request[command_len+key_len+value_len+2]='\n';
-  request[command_len+key_len+value_len+3]='\0';
-
+  if(command_type==9){
+    sprintf(request,"%s %s %s\n",command,key,value);
+  }
+  else{
+    sprintf(request,"%s %s\n",command,key);
+  }
 
   *req_size=request_size;
   return request;
@@ -201,7 +203,7 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix){
   struct timeval t1, t2;
 
   req = createReq(command_type,prefix,value,&size);
-  //printf("%s\n",req);
+  printf("%s\n",req);
   gettimeofday(&t1, 0);
   insist_write(fd,req,strlen(req));
   read(fd,reply,100);

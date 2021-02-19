@@ -167,8 +167,8 @@ void tmemPutTimeCommand(redisClient *c){
   memcpy(key_arg, key, key_len_arg);
   memcpy(value_arg, value, value_len_arg);
 
-  //ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg);
-  ret = 0;
+  ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg);
+  //ret = 0;
   if(ret!=-1){
     sprintf(reply, "+OK");
   }
@@ -207,9 +207,9 @@ void tmemGetTimeCommand(redisClient *c){
   }
   memcpy(key_arg, key, key_len_arg);
 
-  /*ret = tmem_get(key_arg, key_len_arg, value_arg, value_lenp_arg);
+  ret = tmem_get(key_arg, key_len_arg, value_arg, value_lenp_arg);
 
-  /*Copy return value to a string
+  /*Copy return value to a string*/
   value_len = *value_lenp_arg-1;//[1]
   if((value = (char*) malloc(*value_lenp_arg)) == NULL){
     addReplyBulkCString(c, "No memory"); return;
@@ -217,12 +217,13 @@ void tmemGetTimeCommand(redisClient *c){
   memcpy(value,value_arg,*value_lenp_arg);
 
   if(ret!=-1){
-    sprintf(reply, "+%ld\n%s", strlen(value),value);
+    //sprintf(reply, "+%ld\n%s", strlen(value),value);
+    sprintf(reply, "OK");
   }
   else{
     sprintf(reply, "+ERROR");
-  }*/
-  sprintf(reply, "OK");
+  }
+
   addReplyBulkCString(c, reply);
 
   free(key_arg);
