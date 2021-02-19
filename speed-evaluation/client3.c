@@ -188,10 +188,17 @@ void invalidateKey(int fd,char *key){
   read(fd,buff,100);
   return;
 }
+void setKey(int fd,char *prefix,char *value){
+  char *buff;
+  buff = malloc(strlen(prefix) + strlen(value)+100);/*git enough for anything*/
 
-struct myTimes performOneIteration(int fd, char *value, char *prefix){
-  char *req=NULL;
-  int size;
+  sprintf(buff,"tmemPut %s %s\n",prefix,value);
+  insist_write(fd, buff, strlen(buff));
+  read(fd,buff,100);
+  return;
+}
+
+struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req){
   char reply[100];
 
   struct myTimes times;
@@ -201,8 +208,11 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix){
   times.hypercallTime=0;
 
   struct timeval t1, t2;
+  if(command_type == 8){//is GET we must first set the key
+    setKey(fd,prefix,value);
+  }
 
-  req = createReq(command_type,prefix,value,&size);
+
   printf("%s\n",req);
   gettimeofday(&t1, 0);
   insist_write(fd,req,strlen(req));
@@ -241,17 +251,18 @@ int main(int argc, char *argv[]){
   int savefd = getSaveFileDescriptor();
   printf("Can now save results on %d\n",savefd);
 
-  int i;
+  int i,size;
 
   struct myTimes times[num_of_tests];
 
   char *prefix="Key";
   char *value = createLargeValue(value_size);
-  printf("%s\n",value);
+
+  char *req = createReq(command_type,prefix,value,&size);
 
   for(i=0;i<num_of_tests;i++){
     printf("New iteration %d\n",i);
-    times[i] = performOneIteration(sockfd, value, prefix);
+    times[i] = performOneIteration(sockfd, value, prefix,req);
     printf("NetworkTime %f\n", times[i].networkTime);
   }
 
