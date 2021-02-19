@@ -7,7 +7,13 @@ user should see <value> in qemu terminal*/
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/time.h>
+#define USEC 1000000
+
 #include "tmem_ops.h"
+
+struct timeval t1;
+
 int main(){
 
 int key = 5;

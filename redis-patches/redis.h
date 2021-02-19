@@ -1559,6 +1559,8 @@ void latencyCommand(redisClient *c);
 void tmemPutCommand(redisClient *c);
 void tmemGetCommand(redisClient *c);
 void tmemInvalCommand(redisClient *c);
+void tmemPutTimeCommand(redisClient *c);
+void tmemGetTimeCommand(redisClient *c);
 
 #if defined(__GNUC__)
 void *calloc(size_t count, size_t size) __attribute__ ((deprecated));

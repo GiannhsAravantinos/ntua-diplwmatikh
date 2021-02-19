@@ -1,5 +1,6 @@
 #make redis-server with AOF persistance
 make
+make cache
 
 export PATH="${PATH}:$(pwd)/rumprun/bin"
 
