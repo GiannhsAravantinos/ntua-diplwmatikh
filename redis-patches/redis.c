@@ -287,8 +287,8 @@ struct redisCommand redisCommandTable[] = {
     {"tmemPut",tmemPutCommand,3,"r",0,NULL,0,0,0,0,0},/*tmem commands*/
     {"tmemGet",tmemGetCommand,2,"r",0,NULL,0,0,0,0,0},
     {"tmemInval",tmemInvalCommand,2,"r",0,NULL,0,0,0,0,0},
-    {"tmemPutTime",tmemPutCommand,3,"r",0,NULL,0,0,0,0,0},
-    {"tmemGetTime",tmemGetCommand,2,"r",0,NULL,0,0,0,0,0}
+    {"tmemPutTime",tmemPutTimeCommand,3,"r",0,NULL,0,0,0,0,0},
+    {"tmemGetTime",tmemGetTimeCommand,2,"r",0,NULL,0,0,0,0,0}
 };
 
 struct evictionPoolEntry *evictionPoolAlloc(void);
