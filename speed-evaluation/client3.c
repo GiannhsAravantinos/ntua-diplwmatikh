@@ -293,10 +293,10 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req)
 
   invalidateKey(fd,prefix);
 
-  printf("networkTime %ld\n",times.networkTime);
+  /*printf("networkTime %ld\n",times.networkTime);
   printf("redisTime %ld\n",times.redisTime);
   printf("driverTime %ld\n",times.driverTime);
-  printf("hypercallTime %ld\n",times.hypercallTime);
+  printf("hypercallTime %ld\n",times.hypercallTime);*/
 
   return times;
 }
