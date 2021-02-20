@@ -42,6 +42,48 @@ int min(int a,int b){
   }
 }
 
+long int rNum(char *str,int pos){
+  long int num;
+  char number[20];
+  int i=0;
+  while(str[pos]!=' ' && str[pos]!='\n'){
+    number[i]=str[pos];
+    i++;
+    pos++;
+  }
+  number[i]='\0';
+
+  char *ptr;
+  num = strtol(number,&ptr,10);
+  return num;
+}
+
+void getnumbers(char *str,struct myTimes times){
+  int i,counter=0;
+  int startingPos[3];
+
+
+  for(i=0;i<strlen(str);i++){
+    if(str[i]==' ' || str[i]=='\n'){
+      counter++;
+      if(counter==3){
+        startingPos[0]=i+1;
+      }
+      if(counter==5){
+        startingPos[1]=i+1;
+      }
+      if(counter==7){
+        startingPos[2]=i+1;
+        break;
+      }
+    }
+  }
+
+  times.redisTime=rNum(str,startingPos[0]);
+  times.driverTime=rNum(str,startingPos[1]);
+  times.nhypercallTime=rNum(str,startingPos[2]);
+}
+
 char *createLargeValue(int size){
   if(size <1){
     printf("ERROR: not positive length\n");
@@ -217,12 +259,19 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req)
   clock_gettime(clk_id, &tp1);
   insist_write(fd,req,strlen(req));
   read(fd,reply,100);
-  printf("Reply:\n%s\nend of reply\n",reply);
   clock_gettime(clk_id, &tp2);
+
+  printf("Reply:\n%s\nend of reply\n",reply);
+  getnumbers(reply,times);
 
   times.networkTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
 
   invalidateKey(fd,prefix);
+
+  printf("networkTime %ld\n",times.networkTime);
+  printf("redisTime %ld\n",times.redisTime);
+  printf("driverTime %ld\n",times.driverTime);
+  printf("hypercallTime %ld\n",times.hypercallTime);
 
   return times;
 }

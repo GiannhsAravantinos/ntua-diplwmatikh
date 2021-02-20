@@ -184,11 +184,9 @@ void tmemPutTimeCommand(redisClient *c){
   times.redisTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
   times.driverTime = (tp4.tv_sec - tp3.tv_sec)*NSEC + tp4.tv_nsec-tp3.tv_nsec;
 
-  struct timespec restp;
-  clock_getres(clk_id,&restp);
   if(ret!=-1){
-    sprintf(reply, "+OK\nredisTime %ld\ndriverTime %ld\nhypercallTime %ld\nresolution %ld",
-    times.redisTime, times.driverTime, times.hypercallTime,restp.tv_nsec);
+    sprintf(reply, "+OK\nredisTime %ld\ndriverTime %ld\nhypercallTime %ld",
+    times.redisTime, times.driverTime, times.hypercallTime);
   }
   else{
     sprintf(reply, "+ERROR");

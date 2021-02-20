@@ -1,33 +1,64 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 #define NSEC 1000000000
+
+long int rNum(char *str,int pos){
+  long int num;
+  char number[20];
+  int i=0;
+  while(str[pos]!=' ' && str[pos]!='\n'){
+    number[i]=str[pos];
+    i++;
+    pos++;
+  }
+  number[i]='\0';
+
+  char *ptr;
+  num = strtol(number,&ptr,10);
+  return num;
+}
+
+void getnumbers(char *str){
+  int i,counter=0;
+
+
+  int startingPos[3];
+
+  for(i=0;i<strlen(str);i++){
+    if(str[i]==' ' || str[i]=='\n'){
+      counter++;
+      if(counter==3){
+        startingPos[0]=i+1;
+      }
+      if(counter==5){
+        startingPos[1]=i+1;
+      }
+      if(counter==7){
+        startingPos[2]=i+1;
+        break;
+      }
+    }
+  }
+
+  printf("%ld-%ld-%ld\n",
+rNum(str,startingPos[0]),
+rNum(str,startingPos[1]),
+rNum(str,startingPos[2]));
+}
+
+
 int main(int argc, char **argv)
 {
 
-  int result;
-  struct timespec tp1,tp2;
-  clockid_t clk_id;
+  char reply[]="$69\n+OK\nredisTime 120\n\
+driverTime 110\nhypercallTime 100\naaaaaaaaaaaa\r\n";
 
-  clk_id = CLOCK_REALTIME;
-  //clk_id = CLOCK_MONOTONIC;
-//  clk_id = CLOCK_BOOTTIME;
-//  clk_id = CLOCK_PROCESS_CPUTIME_ID;
+  printf("%s\n",reply);
+  getnumbers(reply);
 
-  // int clock_gettime(clockid_t clk_id, struct timespec *tp);
-  result = clock_gettime(clk_id, &tp1);
-  printf("result: %i\n", result);
-  printf("tp.tv_sec: %ld\n", tp1.tv_sec);
-  printf("tp.tv_nsec: %ld\n", tp1.tv_nsec);
-
-  
-  result = clock_gettime(clk_id, &tp2);
-  printf("result: %i\n", result);
-  printf("tp.tv_sec: %ld\n", tp2.tv_sec);
-  printf("tp.tv_nsec: %ld\n", tp2.tv_nsec);
-
-  long long int elapseTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
-  printf("elaped time %lld\n",elapseTime);
   return 0;
 }
