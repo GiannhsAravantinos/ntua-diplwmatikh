@@ -73,7 +73,7 @@ int tmem_put
   /* Perform hypercall */
   gettimeofday(&t1,0);
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_PUT_OP,vtophys((vaddr_t) &tmem_request));
-  gettimeofday(&t1,0);
+  gettimeofday(&t2,0);
 
 
   if(hc_ret==0 || hc_ret == -EINVAL){// -EINVAL means key was not found
