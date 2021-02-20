@@ -81,7 +81,7 @@ void getnumbers(char *str,struct myTimes times){
 
   times.redisTime=rNum(str,startingPos[0]);
   times.driverTime=rNum(str,startingPos[1]);
-  times.nhypercallTime=rNum(str,startingPos[2]);
+  times.hypercallTime=rNum(str,startingPos[2]);
 }
 
 char *createLargeValue(int size){
