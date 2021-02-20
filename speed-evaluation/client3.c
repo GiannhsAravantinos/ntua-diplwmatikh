@@ -14,16 +14,16 @@
 #include <fcntl.h>
 
 #include <time.h>
-#include <sys/time.h>
-#define USEC 1000000
+#include <time.h>
+#define NSEC 1000000000
 
 #include "redis-testing.h"
 
 struct myTimes{
-  double networkTime;
-  double redisTime;
-  double driverTime;
-  double hypercallTime;
+  long int networkTime;
+  long int redisTime;
+  long int driverTime;
+  long int hypercallTime;
 };
 
 char commands[][20] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put","get","set",
@@ -141,7 +141,7 @@ void saveResults(int fd, struct myTimes times){
   char buf[100];
 
 
-  sprintf(buf,"Network %f",times.networkTime);
+  sprintf(buf,"Network %ld",times.networkTime);
   write(fd,buf,strlen(buf));
   return;
 
@@ -207,19 +207,20 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req)
   times.driverTime=0;
   times.hypercallTime=0;
 
-  struct timeval t1, t2;
+  clockid_t clk_id=CLOCK_REALTIME;
+  struct timespec tp1,tp2;
   if(command_type == 8){//is GET we must first set the key
     setKey(fd,prefix,value);
   }
 
 
-  gettimeofday(&t1, 0);
+  clock_gettime(clk_id, &tp1);
   insist_write(fd,req,strlen(req));
   read(fd,reply,100);
   printf("Reply:\n%s\nend of reply\n",reply);
-  gettimeofday(&t2, 0);
+  clock_gettime(clk_id, &tp2);
 
-  times.networkTime = (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
+  times.networkTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
 
   invalidateKey(fd,prefix);
 
@@ -264,7 +265,7 @@ int main(int argc, char *argv[]){
   for(i=0;i<num_of_tests;i++){
     printf("New iteration %d\n",i);
     times[i] = performOneIteration(sockfd, value, prefix,req);
-    printf("NetworkTime %f\n", times[i].networkTime);
+    printf("NetworkTime %ld\n", times[i].networkTime);
   }
 
   saveResults(savefd, times[0]);
