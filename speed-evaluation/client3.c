@@ -186,21 +186,19 @@ void saveResults(int fd, struct myTimes *timesArr){
   long long int finalNetwork, finalRedis, finalDriver, finalHypercall;
 
   for(i=1;i<num_of_tests;i++){/*ignoring 1st test which is unusually slow*/
+    timesArr[i].networkTime -= timesArr[i].redisTime;
+    timesArr[i].redisTime -= timesArr[i].driverTime;
+    timesArr[i].driverTime -= timesArr[i].hypercallTime;
+
     avgNetwork += timesArr[i].networkTime;
     avgRedis += timesArr[i].redisTime;
     avgDriver += timesArr[i].driverTime;
     avgHypercall += timesArr[i].hypercallTime;
   }
-  avgNetwork /= num_of_tests-1;
-  avgRedis /= num_of_tests-1;
-  avgDriver /= num_of_tests-1;
-  avgHypercall /= num_of_tests-1;
-
-  finalHypercall = avgHypercall;
-  finalDriver = avgDriver - avgHypercall;
-  finalRedis = avgRedis - avgHypercall - avgDriver;
-  finalNetwork = avgNetwork - avgHypercall - avgDriver - finalRedis;
-
+  avgNetwork = avgNetwork/(num_of_tests-1);
+  avgRedis = avgRedis/(num_of_tests-1);
+  avgDriver = avgDriver/(num_of_tests-1);
+  avgHypercall = avgHypercall/(num_of_tests-1);
 
   sprintf(buf,"Network %lld\n",finalNetwork);
   write(fd,buf,strlen(buf));
