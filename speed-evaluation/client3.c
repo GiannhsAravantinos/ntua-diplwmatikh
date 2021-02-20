@@ -178,12 +178,40 @@ int getSaveFileDescriptor(){
   return fd;
 }
 
-void saveResults(int fd, struct myTimes times){
+void saveResults(int fd, struct myTimes *timesArr){
   /*todo be fixed*/
   char buf[100];
+  int i;
+  long long int avgNetwork=0, avgRedis=0, avgDriver=0, avgHypercall=0;
+  long long int finalNet, finalRedis, finalDriver, finalHypercall;
+
+  for(i=1;i<num_of_tests;i++){/*ignoring 1st test which is unusually slow*/
+    avgNetwork += timesArr[i].networkTime;
+    avgRedis += timesArr[i].redisTime;
+    avgDriver += timesArr[i].driverTime;
+    avgHypercall += timesArr[i].hypercallTime;
+  }
+  avgNetwork /= num_of_tests-1;
+  avgRedis /= num_of_tests-1;
+  avgDriver /= num_of_tests-1;
+  avgHypercall /= num_of_tests-1;
+
+  finalHypercall = avgHypercall;
+  finalDriver = finalDriver - avgHypercall;
+  finalRedis = finalRedis - avgHypercall - avgDriver;
+  finalNetwork = finalNetwork - avgHypercall - avgDriver - finalRedis;
 
 
-  sprintf(buf,"Network %ld",times.networkTime);
+  sprintf(buf,"Network %lld\n",finalNetwork);
+  write(fd,buf,strlen(buf));
+
+  sprintf(buf,"Redis %lld\n",finalRedis);
+  write(fd,buf,strlen(buf));
+
+  sprintf(buf,"Driver %lld\n",finalDriver);
+  write(fd,buf,strlen(buf));
+
+  sprintf(buf,"Hypercall %lld\n",finalHypercall);
   write(fd,buf,strlen(buf));
   return;
 
@@ -261,7 +289,7 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req)
   read(fd,reply,100);
   clock_gettime(clk_id, &tp2);
 
-  printf("Reply:\n%s\nend of reply\n",reply);
+  //printf("Reply:\n%s\nend of reply\n",reply);
   getnumbers(reply,&times);
 
   times.networkTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
@@ -303,7 +331,7 @@ int main(int argc, char *argv[]){
 
   int i,size;
 
-  struct myTimes times[num_of_tests];
+  struct myTimes timesArr[num_of_tests];
 
   char *prefix="Key";
   char *value = createLargeValue(value_size);
@@ -313,10 +341,9 @@ int main(int argc, char *argv[]){
 
   for(i=0;i<num_of_tests;i++){
     printf("New iteration %d\n",i);
-    times[i] = performOneIteration(sockfd, value, prefix,req);
-    printf("NetworkTime %ld\n", times[i].networkTime);
+    timesArr[i] = performOneIteration(sockfd, value, prefix,req);
   }
 
-  saveResults(savefd, times[0]);
+  saveResults(savefd, timesArr);
   return 0;
 }
