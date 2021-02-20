@@ -187,7 +187,7 @@ void tmemPutTimeCommand(redisClient *c){
   struct timespec restp;
   clock_getres(clk_id,&restp);
   if(ret!=-1){
-    sprintf(reply, "+OK\nredisTime %ld\ndriverTime %ld\nhypercallTime %ld\nresolution %ld\n",
+    sprintf(reply, "+OK\nredisTime %ld\ndriverTime %ld\nhypercallTime %ld\nresolution %ld",
     times.redisTime, times.driverTime, times.hypercallTime,restp.tv_nsec);
   }
   else{
