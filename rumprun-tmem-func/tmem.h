@@ -4,13 +4,13 @@
 #include <sys/types.h>
 
 /*In order to breakdown stages */
-#include <sys/time.h>
-#define USEC 1000000
+#include <time.h>
+#define NSEC 1000000000
 struct myTimes{
-  double redisTime;
-  double driverTime;
-  double hypercallTime;
-};
+  long int redisTime;
+  long int driverTime;
+  long int hypercallTime;
+};/*everything is in nanoseconds*/
 
 /*Every definition is taken as is from origia utmem driver implementation.
 If those definitions are changes, then so should these ones here*/

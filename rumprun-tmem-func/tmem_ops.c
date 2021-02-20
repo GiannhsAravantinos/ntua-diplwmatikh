@@ -33,7 +33,8 @@ paddr_t vtophys(vaddr_t va){
 int tmem_put
 (void *key_arg, size_t key_len_arg, void *value_arg, size_t value_len_arg,struct myTimes *times){
   /*for breakdown purposes*/
-  struct timeval t1, t2;
+  struct timespec tp1,tp2;
+  clockid_t clk_id=CLOCK_REALTIME;
 
   /* Local Variable Declarations */
   /* We use different variables than function arguments to perfrom the hypercall,
@@ -71,9 +72,9 @@ int tmem_put
   };
 
   /* Perform hypercall */
-  gettimeofday(&t1,0);
+  clock_gettime(clk_id,&tp1);
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_PUT_OP,vtophys((vaddr_t) &tmem_request));
-  gettimeofday(&t2,0);
+  clock_gettime(clk_id,&tp2);
 
 
   if(hc_ret==0 || hc_ret == -EINVAL){// -EINVAL means key was not found
@@ -89,7 +90,7 @@ put_free:
   free(key);
 
   if(times!=NULL){
-    times->hypercallTime = ((double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC);
+    times->hypercallTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
   }
   return ret;
 }
@@ -98,7 +99,8 @@ put_free:
 int tmem_get
 (void *key_arg, size_t key_len_arg, void *value_arg, size_t *value_lenp_arg,struct myTimes *times){
   /*for breakdown purposes*/
-  struct timeval t1, t2;
+  struct timespec tp1,tp2;
+  clockid_t clk_id=CLOCK_REALTIME;
 
   /* Local Variable Declarations */
   /* We use different variables than function arguments to perfrom the hypercall,
@@ -132,9 +134,9 @@ int tmem_get
   };
 
   /* Perform hypercall */
-  gettimeofday(&t1,0);
+  clock_gettime(clk_id,&tp1);
   int hc_ret = kvm_hypercall2(KVM_HC_TMEM,PV_TMEM_GET_OP,vtophys((vaddr_t) &tmem_request));
-  gettimeofday(&t2,0);
+  clock_gettime(clk_id,&tp2);
 
   if(hc_ret==0 || hc_ret == -EINVAL){// -EINVAL means key was not found
     ret = hc_ret;
@@ -155,7 +157,7 @@ get_free:
 
 
   if(times!=NULL){
-    times->hypercallTime = ((double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC)+1;
+    times->hypercallTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
   }
   return ret;
 }

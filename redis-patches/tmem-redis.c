@@ -5,7 +5,7 @@ but the code can be easily changed to use system call version.*/
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#define USEC 1000000
+
 
 #include "redis.h"
 #include "tmem_ops.h"
@@ -143,8 +143,9 @@ void tmemInvalCommand(redisClient *c){
 }
 
 void tmemPutTimeCommand(redisClient *c){
-  struct timeval t1, t2;
-  struct timeval t3, t4;
+  clockid_t clk_id = CLOCK_REALTIME;
+  struct timespec tp1, tp2;
+  struct timespec tp3, tp4;
   struct myTimes times;
   times.driverTime=0;times.redisTime=0;times.hypercallTime=0;
 
@@ -157,7 +158,7 @@ void tmemPutTimeCommand(redisClient *c){
     return;
   }
   /*Get key-value pair, everything is assumed to be a string*/
-  gettimeofday(&t1, 0);
+  clock_gettime(clk_id, &tp1);
   key_len = stringObjectLen(c->argv[1]);
   key = c->argv[1]->ptr;
   value_len = stringObjectLen(c->argv[2]);
@@ -175,16 +176,19 @@ void tmemPutTimeCommand(redisClient *c){
   memcpy(key_arg, key, key_len_arg);
   memcpy(value_arg, value, value_len_arg);
 
-  gettimeofday(&t3,0);
+  clock_gettime(clk_id, &tp3);
   ret = tmem_put(key_arg, key_len_arg, value_arg, value_len_arg, &times);
-  gettimeofday(&t4,0);
+  clock_gettime(clk_id, &tp4);
 
-  gettimeofday(&t2, 0);
-  times.redisTime = (double) ((t2.tv_sec - t1.tv_sec) * USEC + t2.tv_usec - t1.tv_usec) / USEC;
-  times.driverTime = (double) ((t4.tv_sec - t3.tv_sec) * USEC + t4.tv_usec - t3.tv_usec) / USEC;
+  clock_gettime(clk_id, &tp2);
+  times.redisTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
+  times.driverTime = (tp4.tv_sec - tp3.tv_sec)*NSEC + tp4.tv_nsec-tp3.tv_nsec;
 
+  struct timespec restp;
+  clock_getres(clk_id,&restp);
   if(ret!=-1){
-    sprintf(reply, "+OK\nredisTime %f\ndriverTime %f\nhypercallTime %f\n",times.redisTime, times.driverTime, times.hypercallTime);
+    sprintf(reply, "+OK\nredisTime %ld\ndriverTime %ld\nhypercallTime %ld\nresolution &ld\n",
+    times.redisTime, times.driverTime, times.hypercallTime,restp.tv_nsec);
   }
   else{
     sprintf(reply, "+ERROR");
