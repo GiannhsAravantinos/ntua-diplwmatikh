@@ -58,7 +58,7 @@ long int rNum(char *str,int pos){
   return num;
 }
 
-void getnumbers(char *str,struct myTimes times){
+void getnumbers(char *str,struct myTimes *times){
   int i,counter=0;
   int startingPos[3];
 
@@ -79,9 +79,9 @@ void getnumbers(char *str,struct myTimes times){
     }
   }
 
-  times.redisTime=rNum(str,startingPos[0]);
-  times.driverTime=rNum(str,startingPos[1]);
-  times.hypercallTime=rNum(str,startingPos[2]);
+  times->redisTime=rNum(str,startingPos[0]);
+  times->driverTime=rNum(str,startingPos[1]);
+  times->hypercallTime=rNum(str,startingPos[2]);
 }
 
 char *createLargeValue(int size){
@@ -262,7 +262,7 @@ struct myTimes performOneIteration(int fd, char *value, char *prefix, char *req)
   clock_gettime(clk_id, &tp2);
 
   printf("Reply:\n%s\nend of reply\n",reply);
-  getnumbers(reply,times);
+  getnumbers(reply,&times);
 
   times.networkTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
 
