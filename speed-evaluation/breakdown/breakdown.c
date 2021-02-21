@@ -30,7 +30,7 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
   int i;
   for(i=0;i<NUMBER_OF_TESTS;i++){
     times[i].driverTime -= times[i].hypercallTime;
-    if(time[i].driverTime<0){
+    if(times[i].driverTime<0){
       printf("ERROR:not good measurement");
     }
 
