@@ -58,6 +58,10 @@ int main(){
   /*Test put operationg*/
   for(i=0;i<NUMBER_OF_TESTS;i++){
 
+    if(i%100==0){
+      printf("%d iteration\n",i);
+    }
+
     clock_gettime(clk_id, &tp1);
     ret = tmem_put((void *) key, (size_t) key_len, (void *) value, (size_t) value_len, &times[i]);
     clock_gettime(clk_id, &tp2);
@@ -80,6 +84,10 @@ int main(){
   tmem_put((void *) key, (size_t) key_len, (void *) value, (size_t) value_len, NULL);
   for(i=0;i<NUMBER_OF_TESTS;i++){
 
+    if(i%100==0){
+      printf("%d iteration\n",i);
+    }
+    
     clock_gettime(clk_id, &tp1);
     ret = tmem_get((void *) key, (size_t) key_len, (void *) value, (size_t*) &value_lenp, &times[i]);
     clock_gettime(clk_id, &tp2);
