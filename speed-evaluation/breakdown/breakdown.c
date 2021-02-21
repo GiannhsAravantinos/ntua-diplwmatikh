@@ -90,7 +90,7 @@ int main(){
 
     clock_gettime(clk_id, &tp1);
     printf("Before get %d\n",i);
-    ret = tmem_get((void *) key, (size_t) key_len, (void *) value, (size_t*) &value_lenp, &times[i]);
+    //ret = tmem_get((void *) key, (size_t) key_len, (void *) value, (size_t*) &value_lenp, &times[i]);
     printf("After get %d\n",i);
     clock_gettime(clk_id, &tp2);
 
