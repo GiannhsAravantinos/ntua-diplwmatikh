@@ -90,7 +90,7 @@ int main(){
 
     clock_gettime(clk_id, &tp1);
     ret = tmem_get((void *) key, (size_t) key_len, (void *) value, (size_t*) &value_lenp, &times[i]);
-    printf("After get\n");
+    printf("After get %d\n",i);
     clock_gettime(clk_id, &tp2);
 
     if(ret==-1 || value_lenp!=value_len){/*PANIC*/
