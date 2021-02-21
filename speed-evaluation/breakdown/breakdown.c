@@ -44,7 +44,7 @@ int main(){
 
   char *value;
   char *key="key";
-  int value_len = VALUE_SIZE;
+  size_t value_len = VALUE_SIZE;
   size_t value_lenp;
   int key_len = strlen(key)+1;
   value = getValue();
@@ -63,7 +63,7 @@ int main(){
     }
 
     clock_gettime(clk_id, &tp1);
-    ret = tmem_put((void *) key, (size_t) key_len, (void *) value, (size_t) value_len, &times[i]);
+    ret = tmem_put((void *) key, (size_t) key_len, (void *) value, value_len, &times[i]);
     clock_gettime(clk_id, &tp2);
 
     if(ret==-1){/*PANIC*/
@@ -82,7 +82,7 @@ int main(){
 
   /*test get operation*/
   int j;
-  tmem_put((void *) key, (size_t) key_len, (void *) value, (size_t) value_len, NULL);
+  tmem_put((void *) key, (size_t) key_len, (void *) value, value_len, NULL);
   for(i=0;i<NUMBER_OF_TESTS;i++){
 
     if(i%100==0){
@@ -90,9 +90,7 @@ int main(){
     }
 
     clock_gettime(clk_id, &tp1);
-    printf("Before get %d\n",i);
     ret = tmem_get((void *) key, (size_t) key_len, (void *) value, &value_lenp, &times[i]);
-    printf("After get %d\n",i);
     clock_gettime(clk_id, &tp2);
 
     if(ret==-1 || (int) value_lenp!=value_len){/*PANIC*/
