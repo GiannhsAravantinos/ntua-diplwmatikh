@@ -96,7 +96,7 @@ char *createLargeValue(int size){
     return NULL;
   }
   memset(buf, (int) 'a',size-1);
-  buf[size]='\0';
+  buf[size-1]='\0';
   return buf;
 }
 
