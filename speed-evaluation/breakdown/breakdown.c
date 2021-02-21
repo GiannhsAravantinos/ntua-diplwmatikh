@@ -8,7 +8,7 @@
 
 
 #define VALUE_SIZE 1024*1024 //maximum tmem permited
-#define NUMBER_OF_TESTS 10
+#define NUMBER_OF_TESTS 2000
 
 char *getValue(){
   char *ptr;
@@ -45,6 +45,7 @@ int main(){
   char *value;
   char *key="key";
   int value_len = VALUE_SIZE;
+  int value_lenp;
   int key_len = strlen(key)+1;
   value = getValue();
 
@@ -54,6 +55,7 @@ int main(){
   struct timespec tp1,tp2;
 
   int i,ret;
+  /*Test put operationg*/
   for(i=0;i<NUMBER_OF_TESTS;i++){
 
     clock_gettime(clk_id, &tp1);
@@ -61,7 +63,7 @@ int main(){
     clock_gettime(clk_id, &tp2);
 
     if(ret==-1){/*PANIC*/
-      printf("ERROR:something went wrong in driver\n");
+      printf("ERROR:Putsomething went wrong in driver\n");
       return 0;
     }
     times[i].driverTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
@@ -69,12 +71,33 @@ int main(){
     ret = tmem_invalidate_page((void *) key, (size_t) key_len,NULL);
   }
 
-  long long int avgHypercall;
-  long long int avgDriver;
+  long long int avgHypercallPut;
+  long long int avgDriverPut;
 
-  calculateResults(times, &avgHypercall, &avgDriver);
+  calculateResults(times, &avgHypercallPut, &avgDriverPut);
 
-  printf("avgHypercall %lld\navgDriver %lld\n",avgHypercall,avgDriver);
+  /*test get operation*/
+  tmem_put((void *) key, (size_t) key_len, (void *) value, (size_t) value_len, NULL);
+  for(i=0;i<NUMBER_OF_TESTS;i++){
+
+    clock_gettime(clk_id, &tp1);
+    ret = tmem_get((void *) key, (size_t) key_len, (void *) value, (size_t*) &value_lenp, &times[i]);
+    clock_gettime(clk_id, &tp2);
+
+    if(ret==-1 || value_lenp!=value_len){/*PANIC*/
+      printf("ERROR:Getsomething went wrong in driver\n");
+      return 0;
+    }
+    times[i].driverTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
+  }
+  long long int avgHypercallGet;
+  long long int avgDriverGet;
+
+  calculateResults(times, &avgHypercallGet, &avgDriverGet);
+
+  printf("Size of Value %d\n", value_len);
+  printf("Put avgHypercall %lld avgDriver %lld\n",avgHypercallPut,avgDriverPut);
+  printf("Get avgHypercall %lld avgDriver %lld\n",avgHypercallGet,avgDriverGet);
 
   free(value);
   return 0;
