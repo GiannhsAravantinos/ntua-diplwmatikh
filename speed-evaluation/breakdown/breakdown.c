@@ -8,7 +8,7 @@
 
 
 #define VALUE_SIZE 1024*1024 //maximum tmem permited
-#define NUMBER_OF_TESTS 2000
+#define NUMBER_OF_TESTS 5000
 
 char *getValue(){
   char *ptr;
@@ -30,7 +30,7 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
   int i;
   for(i=0;i<NUMBER_OF_TESTS;i++){
     if(times[i].hypercallTime<0 || times[i].driverTime<0){
-      printf("Error, neg value %lld %ldd\n",times[i].hypercallTime, times[i].driverTime);
+      printf("Error, neg value %lld %lld\n",times[i].hypercallTime, times[i].driverTime);
       continue;
     }
 
