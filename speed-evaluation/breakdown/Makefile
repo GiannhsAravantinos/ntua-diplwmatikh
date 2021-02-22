@@ -26,7 +26,7 @@ test.bin:test
 	echo "BAKE test.bin"
 	$(rumpBaker) $(TARGET) test.bin test
 
-breakdown:
+test:
 	echo "GCC - o hypercallDemonstrator"
 	$(rumpCompiler) $^ -o test test.c
 
