@@ -57,7 +57,7 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
 }
 
 int main(){
-  printf("%lld\n"sizeof(long));
+  printf("%lld\n",sizeof(long));
 
   char *value;
   char *key="key";
