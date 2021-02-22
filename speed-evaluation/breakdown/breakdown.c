@@ -8,7 +8,7 @@
 
 
 #define VALUE_SIZE 1024*1024 //maximum tmem permited
-#define NUMBER_OF_TESTS 1000
+#define NUMBER_OF_TESTS 2000
 
 char *getValue(){
   char *ptr;
@@ -29,6 +29,10 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
 
   int i;
   for(i=0;i<NUMBER_OF_TESTS;i++){
+    if(i%100==0){
+      printf("Sums %lld %lld\n",sumHypercall,sumDriver);
+    }
+
     times[i].driverTime -= times[i].hypercallTime;
     if(times[i].driverTime<0){
       printf("ERROR:not good measurement");
