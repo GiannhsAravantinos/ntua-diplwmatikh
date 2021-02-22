@@ -8,7 +8,7 @@
 
 
 #define VALUE_SIZE 1024*1024 //maximum tmem permited
-#define NUMBER_OF_TESTS 100
+#define NUMBER_OF_TESTS 1000
 
 char *getValue(){
   char *ptr;
