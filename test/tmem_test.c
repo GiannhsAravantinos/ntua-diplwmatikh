@@ -89,7 +89,7 @@ int main (){
   clock_gettime(clk_id, &tp2);
   if (ret){printf("ERROR! %d\n",ret);return 0;}
 
-  timePut = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
+  timeGet = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
 
   printf("Put %lld Get %lld", timePut,timeGet);
 
