@@ -29,6 +29,9 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
 
   int i;
   for(i=0;i<NUMBER_OF_TESTS;i++){
+    times[i].hypercallTime /= 1000; /* i only car about μs*/
+    times[i].driverTime /= 1000;
+
     if(i%100==0){
       printf("Sums %lld %lld\n",sumHypercall,sumDriver);
     }
