@@ -31,7 +31,7 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
   for(i=0;i<NUMBER_OF_TESTS;i++){
     if(times[i].hypercallTime<0 || times[i].driverTime<0){
       printf("Error, neg value %lld %ldd\n",times[i].hypercallTime, times[i].driverTime);
-      exit(0);
+      continue;
     }
 
     times[i].hypercallTime /= 1000; /* i only car about μs*/
