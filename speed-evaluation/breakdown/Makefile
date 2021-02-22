@@ -3,7 +3,7 @@ rumpBaker = ~/rumprun/rumprun/rumprun/bin/rumprun-bake
 TARGET = hw_generic
 #set this to rumprun gcc compiler, baker and target platform
 
-all:breakdown.bin
+all:breakdown.bin test.bin
 
 
 
@@ -21,5 +21,14 @@ tmem_ops.o: tmem_ops.c
 	echo "GCC tmem_ops.o"
 	$(rumpCompiler) -fPIC -g -c tmem_ops.c -o tmem_ops.o
 
+
+test.bin:test
+	echo "BAKE test.bin"
+	$(rumpBaker) $(TARGET) test.bin test
+
+breakdown:
+	echo "GCC - o hypercallDemonstrator"
+	$(rumpCompiler) $^ -o test test.c
+
 clean:
-	rm -rf *.so *.o breakdown breakdown.bin
+	rm -rf *.so *.o breakdown breakdown.bin test test.bin
