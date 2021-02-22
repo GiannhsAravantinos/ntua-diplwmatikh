@@ -29,6 +29,11 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
 
   int i;
   for(i=0;i<NUMBER_OF_TESTS;i++){
+    if(times[i].hypercallTime<0 || times[i].driverTime<0){
+      printf("Error, neg value %lld %ldd\n",times[i].hypercallTime, times[i].driverTime);
+      exit(0);
+    }
+
     times[i].hypercallTime /= 1000; /* i only car about μs*/
     times[i].driverTime /= 1000;
 
@@ -39,6 +44,7 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
     times[i].driverTime -= times[i].hypercallTime;
     if(times[i].driverTime<0){
       printf("ERROR:not good measurement");
+      exit(0);
     }
 
     sumHypercall += times[i].hypercallTime;
