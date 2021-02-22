@@ -91,7 +91,7 @@ int main (){
 
   timeGet = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
 
-  printf("Put %lld Get %lld", timePut,timeGet);
+  printf("Put %lld Get %lld nanosecs\n", timePut,timeGet);
 
   close(fd);
   free(value);
