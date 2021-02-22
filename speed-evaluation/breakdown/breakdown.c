@@ -30,7 +30,7 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
   int i;
   for(i=0;i<NUMBER_OF_TESTS;i++){
     if(times[i].hypercallTime<0 || times[i].driverTime<0){
-      printf("Error, neg value %lld %lld\n",times[i].hypercallTime, times[i].driverTime);
+      printf("Error, neg value %ld %ld\n",times[i].hypercallTime, times[i].driverTime);
       continue;
     }
 
@@ -57,7 +57,7 @@ void calculateResults(struct myTimes *times, long long int *avgHypercall, long l
 }
 
 int main(){
-  printf("%lld :%lld\n",sizeof(long long int), sizeof(long int));
+  printf("%ld :%ld\n",sizeof(long long int), sizeof(long int));
 
   char *value;
   char *key="key";
@@ -121,7 +121,7 @@ int main(){
 
   calculateResults(times, &avgHypercallGet, &avgDriverGet);
 
-  printf("Size of Value %d\n", value_len);
+  printf("Size of Value %lu\n", value_len);
   printf("Put avgHypercall %lld avgDriver %lld\n",avgHypercallPut,avgDriverPut);
   printf("Get avgHypercall %lld avgDriver %lld\n",avgHypercallGet,avgDriverGet);
 
