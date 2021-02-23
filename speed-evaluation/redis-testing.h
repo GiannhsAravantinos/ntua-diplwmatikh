@@ -17,6 +17,8 @@
 /* Original GET 6, original SET 7*/
 #define TMEMGETTIME 8
 #define TMEMPUTTIME 9
+#define TMEM_GET_TIME 10
+#define TMEM_PUT_TIME 11
 
 #define COMMAND_TYPE SET
 #define VALUE_SIZE 1024

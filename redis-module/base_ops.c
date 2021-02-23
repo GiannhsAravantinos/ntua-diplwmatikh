@@ -164,7 +164,7 @@ int TmemPutTime(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
     times.redisTime = (tp2.tv_sec - tp1.tv_sec)*NSEC + tp2.tv_nsec-tp1.tv_nsec;
 
     char reply[200];
-    sprintf(reply,"+OK\nredisTime %ld\ndriverTime %ld\nhypercallTime %ld",
+    sprintf(reply,"69\n+OK\nredisTime %ld\ndriverTime %ld\nhypercallTime %ld",
     times.redisTime, times.driverTime, times.hypercallTime);
 
     if (ret)

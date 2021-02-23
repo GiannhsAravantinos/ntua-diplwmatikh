@@ -27,7 +27,7 @@ struct myTimes{
 };
 
 char commands[][20] = {"get","set","tmemGet","tmemPut","tmem.get","tmem.put","get","set",
-"tmemGetTime","tmemPutTime"};
+"tmemGetTime","tmemPutTime","tmem.get.time","tmem.put.time"};
 int command_type = COMMAND_TYPE;
 int value_size = VALUE_SIZE;
 int num_of_tests = 1;
@@ -125,7 +125,7 @@ char *createReq(int req_type, char *key, char* value, int *req_size){
     *req_size=-1;return NULL;
   }
 
-  if(command_type==9){
+  if(command_type==9 || command_type==11){
     sprintf(request,"%s %s %s\n",command,key,value);
   }
   else{
@@ -162,7 +162,8 @@ ssize_t insist_write(int fd, const void *buf, size_t cnt){
 
 int getSaveFileDescriptor(){
   char print_commands[][20] = {"get","set","tmemGet","tmemPut","origTmemGet","origTmemPut",
-                              "originalGet","originalSet","tmemGetTime","tmemPutTime"};
+  "originalGet","originalSet","tmemGetTime","tmemPutTime",
+  "origTmemGetTime","origTmemPutTime"};
   int fd;
   char filename[100];
 
@@ -231,8 +232,14 @@ int establish_connection(){
   }
   /* assign IP, PORT */
   sa.sin_family = AF_INET;
-  sa.sin_addr.s_addr = inet_addr(HOST);
-  sa.sin_port = htons(PORT);
+  if(command_type==9){
+    sa.sin_addr.s_addr = inet_addr(HOST);
+    sa.sin_port = htons(PORT);
+  }
+  else{
+    sa.sin_addr.s_addr = inet_addr(LOCALHOST);
+    sa.sin_port = htons(LOCAL_PORT);
+  }
 
 
   /* connect the client socket to server socket */
@@ -249,7 +256,12 @@ void invalidateKey(int fd,char *key){
     printf("Error works only on rumprun commands");
   }
 
-  sprintf(buff,"tmemInval %s\n",key);
+  if(command_type==9){
+    sprintf(buff,"tmemInval %s\n",key);
+  }
+  else{
+    sprintf(buff,"tmem.inval %s\n",key);
+  }
   insist_write(fd, buff, strlen(buff));
   read(fd,buff,100);
   return;
@@ -259,7 +271,12 @@ void setKey(int fd,char *prefix,char *value){
   char *buff;
   buff = malloc(strlen(prefix) + strlen(value)+100);/*git enough for anything*/
 
-  sprintf(buff,"tmemPut %s %s\n",prefix,value);
+  if(command_type==9){
+    sprintf(buff,"tmemPut %s %s\n",prefix,value);
+  }
+  else{
+    sprintf(buff,"tmem.put %s %s\n",prefix,value);
+  }
   insist_write(fd, buff, strlen(buff));
   read(fd,buff,100);
   return;
@@ -342,5 +359,6 @@ int main(int argc, char *argv[]){
   }
 
   saveResults(savefd, timesArr);
+  free(value);
   return 0;
 }
