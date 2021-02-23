@@ -104,7 +104,7 @@ char *createReq(int req_type, char *key, char* value, int *req_size){
   char *command, *request;
   size_t command_len, key_len, value_len, request_size;
 
-  if(req_type<0 || req_type >9){
+  if(req_type<0 || req_type >11){
     printf("ERROR: unknown reqType\n");
     *req_size=-1;return NULL;
   }
