@@ -1,13 +1,13 @@
 #!/bin/bash
-#tmemPUt
-#./client2 3 512
-#./client2 3 1024
-#./client2 3 2048
-#./client2 3 4096
-#./client2 3 8192
-#./client2 3 16384
-#./client2 3 32768
-#./client2 3 65536
+tmemPUt
+./client2 3 512
+./client2 3 1024
+./client2 3 2048
+./client2 3 4096
+./client2 3 8192
+./client2 3 16384
+./client2 3 32768
+./client2 3 65536
 
 #original tmemPut
 ./client2 5 512

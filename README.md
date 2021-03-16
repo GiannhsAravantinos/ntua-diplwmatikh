@@ -6,10 +6,19 @@
 την χρήση τους.
 
 1. **redis-patches**
-Patches που ενσωματώνουν στο redis-server utmem δυνατότητες
+Patches που ενσωματώνουν στο redis-server utmem δυνατότητες ως function call
 2. **rumprun-patches**
 Patches που εισάγουν και υλοποιούν την system call tmem για το rumprun
 3. **rumprun-tmem-func**
-Driver που δίνει την utmem δυνατήτοτα μόνο με system call
+Driver που δίνει την utmem δυνατήτοτα ως function call
 4. **rumprun-tmem-lib**
-Driver που δίνει την utmem δυνατήτοτα με χρήση της system call tmem
+Driver που δίνει την utmem δυνατήτοτα ως system call
+5. **speed-evalutation**
+Βοηθητικά προγράμματα που χρησιμοποιήθηκαν στο κομμάτι των μετρήσεων
+6. **redis-module**
+Το module για redis με την αυθεντική utmem, όπου έχουν προστεθέι εντολές καταγραφής χρόνου των επι μέρους σταδίων
+7. **paper**
+Κώδικας σε latex ο οποίος παράγει την τελική εργασία
+
+
+Για διευκρινίσεις e-mail: el15103@central.ntua.gr ή johnnykef@hotmail.com
