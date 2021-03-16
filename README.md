@@ -19,6 +19,8 @@ Driver που δίνει την utmem δυνατήτοτα ως system call
 Το module για redis με την αυθεντική utmem, όπου έχουν προστεθέι εντολές καταγραφής χρόνου των επι μέρους σταδίων
 7. **paper**
 Κώδικας σε latex ο οποίος παράγει την τελική εργασία
+8. **original-tmem-speed-test**
+Υπολογισμός καθυστέρης αιτημάτων αυθεντικής utmem 
 
 
 Για διευκρινίσεις e-mail: el15103@central.ntua.gr ή johnnykef@hotmail.com
